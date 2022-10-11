@@ -47,7 +47,10 @@ def curieapi_empty(request, tmpdir):
 
 @pytest.fixture()
 def curieapi(request, curieapi_empty):
-    r = curieapi_empty.configs.create_name("pytest", body=bootstrap_config_json)
+    try:
+        r = curieapi_empty.configs.get("pytest")
+    except:
+        r = curieapi_empty.configs.create_name("pytest", body=bootstrap_config_json)
     assert r.status_code == 200
     return curieapi_empty
 

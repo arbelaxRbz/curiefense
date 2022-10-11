@@ -10,12 +10,10 @@
                 "id": "f971e92459e2",
                 "name": "New Rate Limit Rule rrt",
                 "description": "New Rate Limit Rule",
-                "timeframe": "180",
+                "timeframe": 180,
                 "thresholds": [{
-                    "limit": "3",
-                    "action": {
-                        "type": "default"
-                    }
+                    "limit": 3,
+                    "action": "default"
                 }],
                 "key": [
                     {
@@ -24,6 +22,7 @@
                 ],
                 "include": ["blacklist"],
                 "exclude": ["whitelist"],
+                "global": false,
                 "pairwith": {
                     "self": "self"
                 }
@@ -32,13 +31,12 @@
                 "id": "739ae4cf811d",
                 "name": "New Rate Limit Rule",
                 "description": "New Rate Limit Rule",
-                "timeframe": "180",
+                "timeframe": 180,
+                "global": false,
                 "thresholds": [
                     {
-                        "limit": "3",
-                        "action": {
-                            "type": "default"
-                        }
+                        "limit": 3,
+                        "action": "default"
                     }
                 ],
                 "key": [
@@ -60,6 +58,8 @@
                 "match": "__default__",
                 "map": [
                     {
+                        "id": "__default__",
+                        "description": "description",
                         "limit_ids": [],
                         "content_filter_active": true,
                         "acl_active": true,
@@ -76,6 +76,8 @@
                 "match": "active.envoy.demo.reblaze.io",
                 "map": [
                     {
+                        "id": "default1",
+                        "description": "description",
                         "limit_ids": [],
                         "content_filter_active": true,
                         "acl_active": true,
@@ -85,6 +87,8 @@
                         "match": "/deny-custom-sig"
                     },
                     {
+                        "id": "default2",
+                        "description": "description",
                         "limit_ids": [],
                         "content_filter_active": true,
                         "acl_active": true,
@@ -94,6 +98,8 @@
                         "match": "/allow-custom-sig"
                     },
                     {
+                        "id": "default3",
+                        "description": "description",
                         "limit_ids": [],
                         "content_filter_active": true,
                         "acl_active": true,
@@ -103,6 +109,8 @@
                         "match": "/admin"
                     },
                     {
+                        "id": "default4",
+                        "description": "description",
                         "limit_ids": [],
                         "content_filter_active": true,
                         "acl_active": true,
@@ -119,6 +127,8 @@
                 "match": "monitor.envoy.demo.reblaze.io",
                 "map": [
                     {
+                        "id": "default1",
+                        "description": "description",
                         "limit_ids": [],
                         "content_filter_active": true,
                         "acl_active": true,
@@ -128,6 +138,8 @@
                         "match": "/"
                     },
                     {
+                        "id": "default2",
+                        "description": "description",
                         "limit_ids": [],
                         "content_filter_active": true,
                         "acl_active": true,
@@ -145,242 +157,145 @@
                 "name": "100000",
                 "msg": "SQLi Attempt (Conditional Operator Detected)",
                 "operand": "\\s(and|or)\\s+\\d+\\s+.*between\\s.*\\d+\\s+and\\s+\\d+.*",
+                "risk": 5,
                 "severity": 5,
                 "certainity": 5,
                 "category": "sqli",
-                "subcategory": "statement injection"
+                "subcategory": "statement injection",
+                "description": "",
+                "tags": []
             }
         ],
         "contentfilterprofiles": [
             {
-                "id": "__default__",
-                "name": "default contentfilter",
-                "ignore_alphanum": true,
-                "max_header_length": 1024,
-                "max_cookie_length": 1024,
-                "max_arg_length": 1024,
-                "max_headers_count": 42,
-                "max_cookies_count": 42,
-                "max_args_count": 512,
+                "action": "default",
+                "active": [
+                    "cf-rule-risk:5",
+                     "cf-rule-risk:4",
+                    "cf-rule-risk:3",
+                    "cf-rule-subcategory:libinjection-xss"
+                ],
                 "args": {
+                    "max_count": 512,
+                    "max_length": 1024,
                     "names": [
-                        {
-                            "key": "optnamearg",
-                            "reg": "^[A-F]+$",
-                            "restrict": false,
-                            "exclusions": {}
-                        },
-                        {
-                            "key": "baz",
-                            "reg": "^[A-F]+$",
-                            "restrict": true,
-                            "exclusions": {}
-                        },
-                        {
-                            "key": "bazbydpi",
-                            "reg": "^[A-F]+$",
-                            "restrict": false,
-                            "exclusions": {
-                                "100041": 1
-                            }
-                        },
-                        {
-                            "key": "optnameargrestrict",
-                            "reg": "^[A-F]+$",
-                            "restrict": true,
-                            "exclusions": {}
-                        }
+
                     ],
                     "regex": [
-                        {
-                            "key": "optregexarg",
-                            "reg": "^[G-J]{3}$",
-                            "restrict": false,
-                            "exclusions": {}
-                        },
-                        {
-                            "key": "optregexargrestrict",
-                            "reg": "^[G-J]{3}$",
-                            "restrict": true,
-                            "exclusions": {}
-                        }
-                    ]
-                },
-                "headers": {
-                    "names": [
-                        {
-                            "key": "optnamehdr",
-                            "reg": "^[A-F]+$",
-                            "restrict": false,
-                            "exclusions": {}
-                        },
-                        {
-                            "key": "optnamehdrrestrict",
-                            "reg": "^[A-F]+$",
-                            "restrict": true,
-                            "exclusions": {}
-                        }
-                    ],
-                    "regex": [
-                        {
-                            "key": "optregexhdr",
-                            "reg": "^[G-J]{3}$",
-                            "restrict": false,
-                            "exclusions": {}
-                        },
-                        {
-                            "key": "optregexhdrrestrict",
-                            "reg": "^[G-J]{3}$",
-                            "restrict": true,
-                            "exclusions": {}
-                        }
+
                     ]
                 },
                 "cookies": {
+                    "max_count": 42,
+                    "max_length": 1024,
                     "names": [
-                        {
-                            "key": "optnameck",
-                            "reg": "^[A-F]+$",
-                            "restrict": false,
-                            "exclusions": {}
-                        },
-                        {
-                            "key": "optnameckrestrict",
-                            "reg": "^[A-F]+$",
-                            "restrict": true,
-                            "exclusions": {}
-                        }
+
                     ],
                     "regex": [
-                        {
-                            "key": "optregexck",
-                            "reg": "^[G-J]{3}$",
-                            "restrict": false,
-                            "exclusions": {}
-                        },
-                        {
-                            "key": "optregexckrestrict",
-                            "reg": "^[G-J]{3}$",
-                            "restrict": true,
-                            "exclusions": {}
-                        }
+
                     ]
-                }
+                },
+                "decoding": {
+                    "base64": true,
+                    "dual": true,
+                    "html": false,
+                    "unicode": false
+                },
+                "headers": {
+                    "max_count": 42,
+                    "max_length": 1024,
+                    "names": [
+
+                    ],
+                    "regex": [
+
+                    ]
+                },
+                 "id": "__default__",
+                "ignore": [
+
+                ],
+                "ignore_alphanum": true,
+                "masking_seed": "CHANGEME",
+                "name": "default contentfilter",
+                "path": {
+                    "max_count": 42,
+                    "max_length": 1024,
+                    "names": [
+
+                    ],
+                    "regex": [
+
+                    ]
+                },
+                "report": [
+
+                ]
             },
             {
-                "id": "CgXowRvO6zGjW9WMpoESC",
-                "name": "content filter 002",
-                "ignore_alphanum": true,
-                "max_header_length": 1024,
-                "max_cookie_length": 1024,
-                "max_arg_length": 1024,
-                "max_headers_count": 42,
-                "max_cookies_count": 42,
-                "max_args_count": 512,
+                "action": "default",
+                "active": [
+                    "cf-rule-risk:5",
+                     "cf-rule-risk:4",
+                    "cf-rule-risk:3",
+                    "cf-rule-subcategory:libinjection-xss"
+                ],
                 "args": {
+                    "max_count": 512,
+                    "max_length": 1024,
                     "names": [
-                        {
-                            "key": "optnamearg",
-                            "reg": "^[A-F]+$",
-                            "restrict": false,
-                            "exclusions": {}
-                        },
-                        {
-                            "key": "baz",
-                            "reg": "^[A-F]+$",
-                            "restrict": true,
-                            "exclusions": {}
-                        },
-                        {
-                            "key": "bazbydpi",
-                            "reg": "^[A-F]+$",
-                            "restrict": false,
-                            "exclusions": {
-                                "100041": 1
-                            }
-                        },
-                        {
-                            "key": "optnameargrestrict",
-                            "reg": "^[A-F]+$",
-                            "restrict": true,
-                            "exclusions": {}
-                        }
+
                     ],
                     "regex": [
-                        {
-                            "key": "optregexarg",
-                            "reg": "^[G-J]{3}$",
-                            "restrict": false,
-                            "exclusions": {}
-                        },
-                        {
-                            "key": "optregexargrestrict",
-                            "reg": "^[G-J]{3}$",
-                            "restrict": true,
-                            "exclusions": {}
-                        }
-                    ]
-                },
-                "headers": {
-                    "names": [
-                        {
-                            "key": "optnamehdr",
-                            "reg": "^[A-F]+$",
-                            "restrict": false,
-                            "exclusions": {}
-                        },
-                        {
-                            "key": "optnamehdrrestrict",
-                            "reg": "^[A-F]+$",
-                            "restrict": true,
-                            "exclusions": {}
-                        }
-                    ],
-                    "regex": [
-                        {
-                            "key": "optregexhdr",
-                            "reg": "^[G-J]{3}$",
-                            "restrict": false,
-                            "exclusions": {}
-                        },
-                        {
-                            "key": "optregexhdrrestrict",
-                            "reg": "^[G-J]{3}$",
-                            "restrict": true,
-                            "exclusions": {}
-                        }
+
                     ]
                 },
                 "cookies": {
+                    "max_count": 42,
+                    "max_length": 1024,
                     "names": [
-                        {
-                            "key": "optnameck",
-                            "reg": "^[A-F]+$",
-                            "restrict": false,
-                            "exclusions": {}
-                        },
-                        {
-                            "key": "optnameckrestrict",
-                            "reg": "^[A-F]+$",
-                            "restrict": true,
-                            "exclusions": {}
-                        }
+
                     ],
                     "regex": [
-                        {
-                            "key": "optregexck",
-                            "reg": "^[G-J]{3}$",
-                            "restrict": false,
-                            "exclusions": {}
-                        },
-                        {
-                            "key": "optregexckrestrict",
-                            "reg": "^[G-J]{3}$",
-                            "restrict": true,
-                            "exclusions": {}
-                        }
+
                     ]
-                }
+                },
+                "decoding": {
+                    "base64": true,
+                    "dual": true,
+                    "html": false,
+                    "unicode": false
+                },
+                "headers": {
+                    "max_count": 42,
+                    "max_length": 1024,
+                    "names": [
+
+                    ],
+                    "regex": [
+
+                    ]
+                },
+                 "id": "CgXowRvO6zGjW9WMpoESC",
+                "ignore": [
+
+                ],
+                "ignore_alphanum": true,
+                "masking_seed": "CHANGEME",
+                "name": "content filter 002",
+                "path": {
+                    "max_count": 42,
+                    "max_length": 1024,
+                    "names": [
+
+                    ],
+                    "regex": [
+
+                    ]
+                },
+                "report": [
+
+                ]
             }
         ],
         "aclprofiles": [
@@ -427,11 +342,11 @@
             {
                 "id": "ed8f6efb",
                 "active": true,
-                "action": {"type": "default"},
+                "action": "default",
                 "name": "Spamhaus DROP",
                 "source": "https://www.spamhaus.org/drop/drop.txt",
                 "mdate": "2020-05-31T05:28:47.410Z",
-                "notes": "; Spamhaus DROP List 2020/05/28 - (c) 2020 The Spamhaus Project\n; https://www.spamhaus.org/drop/drop.txt\n; Last-Modified: Mon, 25 May 2020 19:50:14 GMT\n; Expires: Fri, 29 May 2020 00:24:16 GMT\n",
+                "description": "; Spamhaus DROP List 2020/05/28 - (c) 2020 The Spamhaus Project\n; https://www.spamhaus.org/drop/drop.txt\n; Last-Modified: Mon, 25 May 2020 19:50:14 GMT\n; Expires: Fri, 29 May 2020 00:24:16 GMT\n",
                 "tags": [
                     "blacklists",
                     "spamhaus"
@@ -462,11 +377,11 @@
             {
                 "id": "fc516979",
                 "active": true,
-                "action": {"type": "default"},
+                "action": "default",
                 "name": "Spamhaus EDROP",
                 "source": "https://www.spamhaus.org/drop/edrop.txt",
                 "mdate": "2020-05-31T05:28:26.822Z",
-                "notes": "; Spamhaus EDROP List 2020/05/28 - (c) 2020 The Spamhaus Project\n; https://www.spamhaus.org/drop/edrop.txt\n; Last-Modified: Tue, 12 May 2020 10:42:24 GMT\n; Expires: Fri, 29 May 2020 04:31:27 GMT\n",
+                "description": "; Spamhaus EDROP List 2020/05/28 - (c) 2020 The Spamhaus Project\n; https://www.spamhaus.org/drop/edrop.txt\n; Last-Modified: Tue, 12 May 2020 10:42:24 GMT\n; Expires: Fri, 29 May 2020 04:31:27 GMT\n",
                 "tags": [
                     "blacklists",
                     "spamhaus"
@@ -497,11 +412,11 @@
             {
                 "id": "42460704",
                 "active": true,
-                "action": {"type": "default"},
+                "action": "default",
                 "name": "Our offices",
                 "source": "self-managed",
                 "mdate": "2020-05-23T00:04:41",
-                "notes": "this is my own list",
+                "description": "this is my own list",
                 "tags": [
                     "internal",
                     "office"
@@ -535,11 +450,11 @@
             {
                 "id": "13bfc2ee-81c3-449c-ab04-a7d95ba59213",
                 "active": true,
-                "action": {"type": "default"},
+                "action": "default",
                 "name": "Spamhaus IPV6 DROP List",
                 "source": "https://www.spamhaus.org/drop/dropv6.txt",
                 "mdate": "2020-05-31T05:28:12.715Z",
-                "notes": "; Spamhaus IPv6 DROP List 2020/05/31 - (c) 2020 The Spamhaus Project\n; https://www.spamhaus.org/drop/dropv6.txt\n; Last-Modified: Thu, 30 Jan 2020 05:16:30 GMT\n; Expires: Sun, 31 May 2020 04:35:11 GMT\n",
+                "description": "; Spamhaus IPv6 DROP List 2020/05/31 - (c) 2020 The Spamhaus Project\n; https://www.spamhaus.org/drop/dropv6.txt\n; Last-Modified: Thu, 30 Jan 2020 05:16:30 GMT\n; Expires: Sun, 31 May 2020 04:35:11 GMT\n",
                 "tags": [
                     "blacklists",
                     "spamhaus"
@@ -579,11 +494,11 @@
             {
                 "id": "2716dfe695d8",
                 "active": true,
-                "action": {"type": "default"},
+                "action": "default",
                 "name": "Bad Robots Eisen",
                 "source": "self-managed",
                 "mdate": "2020-06-12T07:21:03.298Z",
-                "notes": "New List Notes and Remarks",
+                "description": "New List description and Remarks",
                 "tags": [],
                 "rule": {
                     "relation": "OR",
@@ -635,20 +550,12 @@
                         "args": {}
                     }
                 ],
-                "action": {
-                    "type": "ban",
-                    "params": {
-                        "duration": "123",
-                        "action": {
-                            "type": "default"
-                        }
-                    }
-                },
+                "tags": ["flowc"],
                 "include": [
                     "all"
                 ],
                 "exclude": [],
-                "notes": "New Flow Control Notes and Remarks",
+                "description": "New Flow Control Notes and Remarks",
                 "active": true
             }
         ]

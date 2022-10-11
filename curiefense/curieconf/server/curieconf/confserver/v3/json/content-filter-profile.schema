@@ -68,6 +68,11 @@
             "title": "Ignore Alphanumeric",
             "description": "When true, arguments, headers or cookies, which contain only alpha numeric characters, will be ignored"
         },
+        "ignore_body": {
+            "type": "boolean",
+            "title": "Ignore Body",
+            "description": "When true, will make the filter ignore a function body"
+        },
         "args": { "$ref": "#/definitions/content-filter-profile-section" },
         "headers": { "$ref": "#/definitions/content-filter-profile-section" },
         "cookies": { "$ref": "#/definitions/content-filter-profile-section" },

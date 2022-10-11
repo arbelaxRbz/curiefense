@@ -31,7 +31,7 @@ ns_tools = api.namespace("tools", description="Tools")
 
 
 class AnyType(fields.Raw):
-    __schema_type__ = "any"
+    __schema_type__ = ["number", "string", "boolean", "object", "array", "null"]
 
 
 # limit
@@ -53,8 +53,8 @@ m_limit = api.model(
         "global": fields.Boolean(required=True),
         "timeframe": fields.Integer(required=True),
         "thresholds": fields.List(fields.Nested(m_threshold)),
-        "include": fields.Raw(required=True),
-        "exclude": fields.Raw(required=True),
+        "include": fields.List(fields.String()),
+        "exclude": fields.List(fields.String()),
         "key": AnyType(required=True),
         "pairwith": fields.Raw(required=True),
         "tags": fields.List(fields.String()),
@@ -136,7 +136,7 @@ m_contentfilterprofile = api.model(
         "ignore": fields.List(fields.String()),
         "tags": fields.List(fields.String()),
         "action": fields.String(),
-        "ignore_body": fields.Boolean(required=True),
+        "ignore_body": fields.Boolean(),
     },
 )
 
@@ -170,7 +170,7 @@ m_globalfilter = api.model(
         "mdate": fields.String(required=True),
         "description": fields.String(),
         "active": fields.Boolean(required=True),
-        "action": fields.Raw(required=True),
+        "action": fields.String(required=True),
         "tags": fields.List(fields.String()),
         "rule": AnyType(),
     },
