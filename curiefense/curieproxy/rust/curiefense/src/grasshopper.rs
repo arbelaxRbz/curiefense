@@ -4,12 +4,25 @@ use crate::{Action, ActionType, Decision};
 use std::collections::HashMap;
 use std::ffi::{CStr, CString};
 
+#[repr(u8)]
+pub enum PrecisionLevel {
+    Active,
+    Passive,
+    Interactive,
+    MobileSdk,
+    Invalid
+}
+
 pub trait Grasshopper {
     fn js_app(&self) -> Option<String>;
     fn js_bio(&self) -> Option<String>;
-    fn parse_rbzid(&self, rbzid: &str, seed: &str) -> Option<bool>;
+    // added active and inactive
+    fn js_interactive(&self) -> Option<String>;
+    fn js_active(&self) -> Option<String>;
     fn gen_new_seed(&self, seed: &str) -> Option<String>;
     fn verify_workproof(&self, workproof: &str, seed: &str) -> Option<String>;
+    //updated return value
+    fn parse_rbzid(&self, rbzid: &str) -> PrecisionLevel;
 }
 
 mod imported {
@@ -17,9 +30,11 @@ mod imported {
     extern "C" {
         pub fn verify_workproof(c_zebra: *const c_char, c_ua: *const c_char, success: *mut bool) -> *mut c_char;
         pub fn gen_new_seed(c_ua: *const c_char) -> *mut c_char;
-        pub fn parse_rbzid(c_rbzid: *const c_char, c_ua: *const c_char) -> i8;
+        pub fn parse_rbzid(c_rbzid: *const c_char) -> PrecisionLevel;
         pub fn js_app() -> *const i8;
         pub fn js_bio() -> *const i8;
+        pub fn js_interactive() -> *const i8;
+        pub fn js_active() -> *const i8;
         pub fn free_string(s: *mut c_char);
     }
 }
@@ -34,8 +49,14 @@ impl Grasshopper for DummyGrasshopper {
     fn js_bio(&self) -> Option<String> {
         Some("dummy_grasshopper_for_testing_only".to_string())
     }
-    fn parse_rbzid(&self, _rbzid: &str, _seed: &str) -> Option<bool> {
-        Some(false)
+    fn js_interactive(&self) -> Option<String> {
+        Some("dummy_grasshopper_for_testing_only".to_string())
+    }
+    fn js_active(&self) -> Option<String> {
+        Some("dummy_grasshopper_for_testing_only".to_string())
+    }
+    fn parse_rbzid(&self, _rbzid: &str) -> PrecisionLevel {
+        PrecisionLevel::Invalid
     }
     fn gen_new_seed(&self, _seed: &str) -> Option<String> {
         Some("dummy_grasshopper_for_testing_only".to_string())
@@ -67,15 +88,30 @@ impl Grasshopper for DynGrasshopper {
             Some(o)
         }
     }
-    fn parse_rbzid(&self, rbzid: &str, seed: &str) -> Option<bool> {
+    //added the rest of the js
+    fn js_active(&self) -> Option<String> {
+        unsafe {
+            let v = imported::js_active();
+            let c_v = CStr::from_ptr(v);
+            let o = c_v.to_string_lossy().to_string();
+
+            Some(o)
+        }
+    }
+    fn js_interactive(&self) -> Option<String> {
+        unsafe {
+            let v = imported::js_interactive();
+            let c_v = CStr::from_ptr(v);
+            let o = c_v.to_string_lossy().to_string();
+
+            Some(o)
+        }
+    }
+
+    fn parse_rbzid(&self, rbzid: &str) -> PrecisionLevel {
         unsafe {
             let c_rbzid = CString::new(rbzid).ok()?;
-            let c_seed = CString::new(seed).ok()?;
-            match imported::parse_rbzid(c_rbzid.as_ptr(), c_seed.as_ptr()) {
-                0 => Some(false),
-                1 => Some(true),
-                _ => None,
-            }
+            imported::parse_rbzid(c_rbzid.as_ptr())
         }
     }
     fn gen_new_seed(&self, seed: &str) -> Option<String> {

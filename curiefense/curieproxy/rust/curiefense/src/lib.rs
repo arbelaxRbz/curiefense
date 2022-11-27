@@ -23,7 +23,7 @@ use analyze::{APhase0, CfRulesArg};
 use body::body_too_large;
 use config::virtualtags::VirtualTags;
 use config::with_config;
-use grasshopper::Grasshopper;
+use grasshopper::{Grasshopper, PrecisionLevel};
 use interface::stats::{SecpolStats, Stats, StatsCollect};
 use interface::{Action, ActionType, AnalyzeResult, BlockReason, Decision, Location, Tags};
 use logs::Logs;
@@ -34,22 +34,17 @@ use utils::{map_request, RawRequest, RequestInfo};
 
 use crate::config::hostmap::SecurityPolicy;
 
-fn challenge_verified<GH: Grasshopper>(gh: &GH, reqinfo: &RequestInfo, logs: &mut Logs) -> bool {
+fn challenge_verified<GH: Grasshopper>(gh: &GH, reqinfo: &RequestInfo, logs: &mut Logs) -> PrecisionLevel {
     if let Some(rbzid) = reqinfo.cookies.get("rbzid") {
         if let Some(ua) = reqinfo.headers.get("user-agent") {
             logs.debug(|| format!("Checking rbzid cookie {} with user-agent {}", rbzid, ua));
-            return match gh.parse_rbzid(&rbzid.replace('-', "="), ua) {
-                Some(b) => b,
-                None => {
-                    logs.error("Something when wrong when calling parse_rbzid");
-                    false
-                }
-            };
+            //no need to send ua anymore..
+            return gh.parse_rbzid(&rbzid.replace('-', "="))
         } else {
             logs.debug("Could not find useragent!");
         }
     }
-    false
+    PrecisionLevel::Invalid
 }
 
 /// # Safety
@@ -59,7 +54,7 @@ pub unsafe fn inspect_async_step(ptr: *mut Executor<Task<(Decision, Tags, Logs)>
     match ptr.as_ref() {
         None => Progress::Error("Null ptr".to_string()),
         Some(r) => r.step(),
-    }
+    }F
 }
 
 /// # Safety
@@ -149,14 +144,19 @@ pub fn inspect_generic_request_map_init<GH: Grasshopper>(
 
                     let nflows = cfg.flows.clone();
 
-                    // without grasshopper, default to being human
-                    let is_human = if let Some(gh) = mgh {
+                    // without grasshopper - is that an option..?
+                    let precision_level = challenge_verified(gh, &reqinfo, slogs);
+                    // todo this? or ^
+                    /*// without grasshopper, default to being human
+                    let precision_level = if let Some(gh) = mgh {
                         challenge_verified(gh, &reqinfo, slogs)
                     } else {
-                        false
-                    };
+                        Invalid
+                    };*/
 
-                    let ntags = tag_request(stats, is_human, &cfg.globalfilters, &reqinfo, &cfg.virtual_tags);
+                    //converting the precision_level to is_human like before, for the return value
+                    let is_human = precision_level != Invalid;
+                    let ntags = tag_request(stats, precision_level, &cfg.globalfilters, &reqinfo, &cfg.virtual_tags);
                     RequestMappingResult::Res((ntags, nflows, reqinfo, is_human))
                 }
                 None => RequestMappingResult::NoSecurityPolicy,

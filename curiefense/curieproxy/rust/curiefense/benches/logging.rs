@@ -11,6 +11,7 @@ use curiefense::tagging::tag_request;
 use curiefense::utils::{map_request, RawRequest, RequestMeta};
 use std::collections::HashMap;
 use std::sync::Arc;
+use grasshopper::{PrecisionLevel};
 
 fn logging_empty(c: &mut Criterion) {
     let mut headers = HashMap::new();
@@ -48,7 +49,8 @@ fn logging_empty(c: &mut Criterion) {
     let mut logs = Logs::new(LogLevel::Debug);
     let stats = StatsCollect::new("QSDQSDQSD".into()).secpol(SecpolStats::build(&secpolicy, 0));
     let reqinfo = map_request(&mut logs, secpolicy, None, &raw, None);
-    let (itags, _, stats) = tag_request(stats, false, &[], &reqinfo, &VirtualTags::default());
+    // let (itags, _, stats) = tag_request(stats, false, &[], &reqinfo, &VirtualTags::default());
+    let (itags, _, stats) = tag_request(stats, PrecisionLevel::Invalid, &[], &reqinfo, &VirtualTags::default());
     let p0 = APhase0 {
         flows: HashMap::new(),
         globalfilter_dec: SimpleDecision::Pass,

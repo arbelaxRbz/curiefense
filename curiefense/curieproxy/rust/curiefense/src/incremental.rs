@@ -237,13 +237,15 @@ pub async fn finalize<GH: Grasshopper>(
         Some(idata.start),
     );
 
-    // without grasshopper, default to being human
-    let is_human = if let Some(gh) = mgh {
-        challenge_verified(gh, &reqinfo, &mut logs)
-    } else {
-        false
-    };
-
+    let precision_level = challenge_verified(gh, &reqinfo, &mut logss);//new, replacing what's below
+    // // without grasshopper, default to being human
+    // let is_human = if let Some(gh) = mgh {
+    //     challenge_verified(gh, &reqinfo, &mut logs)
+    // } else {
+    //     false
+    // };
+    //converting the precision_level to is_human like before, for the return value
+    let is_human = precision_level != Invalid;
     let (mut tags, globalfilter_dec, stats) = tag_request(idata.stats, is_human, globalfilters, &reqinfo, &vtags);
     tags.insert("all", Location::Request);
 

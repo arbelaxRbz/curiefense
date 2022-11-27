@@ -212,6 +212,7 @@ impl Grasshopper for DummyGrasshopper {
     fn js_bio(&self) -> Option<std::string::String> {
         None
     }
+    //todo change bool to precisionLevel
     fn parse_rbzid(&self, _: &str, _: &str) -> Option<bool> {
         Some(self.humanity)
     }

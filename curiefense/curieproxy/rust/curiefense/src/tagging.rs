@@ -9,6 +9,7 @@ use crate::requestfields::RequestField;
 use crate::utils::RequestInfo;
 use std::collections::HashSet;
 use std::net::IpAddr;
+use grasshopper::{PrecisionLevel};
 
 struct MatchResult {
     matched: HashSet<Location>,
@@ -172,16 +173,30 @@ fn check_entry(rinfo: &RequestInfo, tags: &Tags, sub: &GlobalFilterEntry) -> Mat
 
 pub fn tag_request(
     stats: StatsCollect<BStageSecpol>,
-    is_human: bool,
+    precision_level: PrecisionLevel,
     globalfilters: &[GlobalFilterSection],
     rinfo: &RequestInfo,
     vtags: &VirtualTags,
 ) -> (Tags, SimpleDecision, StatsCollect<BStageMapped>) {
     let mut tags = Tags::new(vtags);
-    if is_human {
+    //for each case - human+precision level / bot
+    if precision_level != Invalid {
         tags.insert("human", Location::Request);
-    } else {
+    }
+    else {
         tags.insert("bot", Location::Request);
+    };
+    match precision_level {
+        Active | Passive => {
+            tags.insert("precision-l1", Location::Request);
+        }
+        Interactive => {
+            tags.insert("precision-l3", Location::Request);
+        }
+        MobileSdk => {
+            tags.insert("precision-l4", Location::Request);
+        }
+        _ => {}
     }
     tags.insert_qualified("headers", &rinfo.headers.len().to_string(), Location::Headers);
     tags.insert_qualified("cookies", &rinfo.cookies.len().to_string(), Location::Cookies);
