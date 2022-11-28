@@ -20,7 +20,9 @@ if [ -z "$DOCKER_TAG" ]
 then
     GITTAG="$(git describe --tag --long --dirty)"
     DOCKER_DIR_HASH="$(git rev-parse --short=12 HEAD:curiefense)"
-    DOCKER_TAG="${DOCKER_TAG:-$GITTAG-$DOCKER_DIR_HASH}"
+#    DOCKER_TAG="${DOCKER_TAG:-$GITTAG-$DOCKER_DIR_HASH}"
+# TODO REMOVE! JUST FOR TESTING
+    DOCKER_TAG="v1.5.0"
 fi
 
 STOP_ON_FAIL=${STOP_ON_FAIL:-yes}
