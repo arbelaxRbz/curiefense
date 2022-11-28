@@ -1,4 +1,6 @@
-ARG RUSTBIN_TAG=latest
+# ARG RUSTBIN_TAG=latest
+# TODO REMOVE! JUST FOR TESTING
+ARG RUSTBIN_TAG=v1.5.0
 FROM curiefense/curiefense-rustbuild-focal:${RUSTBIN_TAG} AS rustbin
 FROM docker.io/istio/proxyv2:1.15.2
 
