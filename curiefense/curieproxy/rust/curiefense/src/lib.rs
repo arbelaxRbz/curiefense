@@ -158,7 +158,7 @@ pub fn inspect_generic_request_map_init<GH: Grasshopper>(
                     // without grasshopper - is that an option..?
                     // let precision_level = challenge_verified(gh, &reqinfo, slogs);////need gh, using below
                     let precision_level = if let Some(gh) = mgh {
-                        challenge_verified(gh, &reqinfo, &mut logs)
+                        challenge_verified(gh, &reqinfo, slogs)
                     } else {
                         crate::PrecisionLevel::Invalid
                     };
