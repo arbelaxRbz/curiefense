@@ -18,6 +18,7 @@
                 "headers": { "type": "string" },
                 "cookies": { "type": "string" },
                 "args": { "type": "string" },
+                "plugins": { "type": "string" },
                 "arguments": { "type": "string" },
                 "attrs": {
                     "type": "string",
@@ -95,6 +96,7 @@
           "uri": { "type": "string" },
           "cookies": { "$ref": "#/definitions/string-values-obj" },
           "headers": { "$ref": "#/definitions/string-values-obj" },
+          "plugins": { "$ref": "#/definitions/string-values-obj" },          
           "args": { "$ref": "#/definitions/string-values-obj" }
         },
         "required": ["method", "uri"]

@@ -1594,7 +1594,7 @@
           "exclusions": [],
           "key": "special",
           "mask": false,
-          "reg": "^[A-Z]+",
+          "reg": "^[a-z]+",
           "restrict": true
         }
       ],
@@ -1634,6 +1634,71 @@
     "ignore_alphanum": false,
     "masking_seed": "CHANGEME",
     "name": "all sections test",
+    "path": {
+      "max_count": 42,
+      "max_length": 2048,
+      "names": [],
+      "regex": []
+    },
+    "report": []
+  },
+  {
+    "action": "b403",
+    "active": [],
+    "allsections": {
+      "max_count": 24,
+      "max_length": 1024,
+      "names": [],
+      "regex": []
+    },
+    "args": {
+      "max_count": 24,
+      "max_length": 1024,
+      "names": [],
+      "regex": []
+    },
+    "cookies": {
+      "max_count": 42,
+      "max_length": 1024,
+      "names": [],
+      "regex": []
+    },
+    "decoding": {
+      "base64": false
+    },
+    "headers": {
+      "max_count": 42,
+      "max_length": 1024,
+      "names": [],
+      "regex": []
+    },
+    "plugins": {
+      "max_count": 42,
+      "max_length": 1024,
+      "names": [
+        {
+          "exclusions": [],
+          "key": "jwt.email",
+          "mask": false,
+          "reg": "^.*@secure\\.domain$",
+          "restrict": true
+        },
+        {
+          "exclusions": [],
+          "key": "jwt.secret",
+          "mask": true,
+          "reg": "",
+          "restrict": false
+
+        }
+      ],
+      "regex": []
+    },
+    "id": "cf_jwt",
+    "ignore": [],
+    "ignore_alphanum": false,
+    "masking_seed": "CHANGEME",
+    "name": "cf JWT",
     "path": {
       "max_count": 42,
       "max_length": 2048,

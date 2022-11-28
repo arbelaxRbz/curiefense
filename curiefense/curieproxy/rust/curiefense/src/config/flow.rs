@@ -78,22 +78,20 @@ impl FlowEntry {
 
 impl FlowStep {
     fn convert(rawstep: RawFlowStep) -> anyhow::Result<FlowStep> {
+        let mut headers: HashMap<String, String> = rawstep
+            .headers
+            .into_iter()
+            .map(|(hname, hvalue)| (hname.to_ascii_lowercase(), hvalue))
+            .collect();
         let sequence_key = SequenceKey(
-            rawstep.method
-                + rawstep
-                    .headers
-                    .get("host")
-                    .map(|s| s.as_str())
-                    .unwrap_or("Missing host field")
-                + &rawstep.uri,
+            rawstep.method + headers.get("host").map(|s| s.as_str()).unwrap_or("Missing host field") + &rawstep.uri,
         );
-        let mut nheaders = rawstep.headers;
-        nheaders.remove("host");
+        headers.remove("host");
         let fake_selector = RawLimitSelector {
             args: rawstep.args,
             cookies: rawstep.cookies,
             attrs: HashMap::new(),
-            headers: nheaders,
+            headers,
         };
 
         Ok(FlowStep {

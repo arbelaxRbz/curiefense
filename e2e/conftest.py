@@ -61,6 +61,10 @@ def case_load(luatests_path: str, path: str) -> Iterator[Tuple[str, Any]]:
             yield (file, json.load(f))
 
 
+def rename_test(testname: str) -> str:
+    return testname.replace(" ", "_")
+
+
 def pytest_generate_tests(metafunc: pytest.Metafunc):
     luatests_path = metafunc.config.getoption("--luatests-path")
     assert isinstance(luatests_path, str)
@@ -72,7 +76,7 @@ def pytest_generate_tests(metafunc: pytest.Metafunc):
         metafunc.parametrize(
             "raw_request",
             [param[1] for param in params],
-            ids=["%s/%s" % (p[0], p[1]["name"]) for p in params],
+            ids=["%s/%s" % (p[0], rename_test(p[1]["name"])) for p in params],
         )
     if "max_time_limit" in metafunc.fixturenames:
         max_time_limit = 0

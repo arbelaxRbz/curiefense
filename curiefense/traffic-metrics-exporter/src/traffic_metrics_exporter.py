@@ -216,27 +216,24 @@ def get_t2():
     logger.info("entering the while True")
     while True:
         start_time = time.time()
-        logger.info ("start time %s" % start_time)
+        logger.info("start time %s" % start_time)
         # time.time() - start_time
         try:
-            logger.info ("url: %s" % config["url"])
-            logger.info ("headers: %s" %config["headers"])
-            
-            t2_data = requests.get(
-                config["url"], headers=config["headers"]
-            )
+            logger.info("url: %s" % config["url"])
+            logger.info("headers: %s" % config["headers"])
+
+            t2_data = requests.get(config["url"], headers=config["headers"])
             t2_data = t2_data.content.decode()
 
             q.put(t2_data)
-            logger.info ("done iteration: %s" % start_time)
+            logger.info("done iteration: %s" % start_time)
 
         except Exception as e:
             logger.exception(e)
 
         sleep_interval = _get_sleep_interval(start_time)
-        logger.info ("sleeping for %s" % sleep_interval)
+        logger.info("sleeping for %s" % sleep_interval)
         time.sleep(sleep_interval)
-
 
 
 if __name__ == "__main__":

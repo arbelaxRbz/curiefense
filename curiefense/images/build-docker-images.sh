@@ -15,10 +15,16 @@ BUILD_RUST=${BUILD_RUST:-yes}
 declare -A status
 
 GLOBALSTATUS=0
-GITTAG="$(git describe --tag --long --dirty)"
-DOCKER_DIR_HASH="$(git rev-parse --short=12 HEAD:curiefense)"
-DOCKER_TAG="${DOCKER_TAG:-$GITTAG-$DOCKER_DIR_HASH}"
+
+if [ -z "$DOCKER_TAG" ]
+then
+    GITTAG="$(git describe --tag --long --dirty)"
+    DOCKER_DIR_HASH="$(git rev-parse --short=12 HEAD:curiefense)"
+    DOCKER_TAG="${DOCKER_TAG:-$GITTAG-$DOCKER_DIR_HASH}"
+fi
+
 STOP_ON_FAIL=${STOP_ON_FAIL:-yes}
+
 IFS=' ' read -ra RUST_DISTROS <<< "${RUST_DISTROS:-bionic focal}"
 
 if [ -n "$TESTIMG" ]; then

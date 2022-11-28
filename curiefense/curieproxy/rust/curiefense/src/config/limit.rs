@@ -32,7 +32,7 @@ pub struct LimitThreshold {
 pub fn resolve_selectors(rawsel: RawLimitSelector) -> anyhow::Result<Vec<RequestSelectorCondition>> {
     let mk_selectors = |tp: SelectorType, mp: HashMap<String, String>| {
         mp.into_iter()
-            .map(move |(v, cond)| decode_request_selector_condition(tp, &v, &cond))
+            .map(move |(v, cond)| decode_request_selector_condition(tp.clone(), &v, &cond))
     };
     mk_selectors(SelectorType::Args, rawsel.args)
         .chain(mk_selectors(SelectorType::Cookies, rawsel.cookies))

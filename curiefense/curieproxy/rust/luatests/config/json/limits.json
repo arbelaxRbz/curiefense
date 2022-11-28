@@ -207,7 +207,7 @@
     "include": [],
     "key": [
       {
-        "headers": "h1"
+        "headers": "H1"
       }
     ],
     "name": "Multilimit test A",
@@ -231,7 +231,7 @@
     "include": [],
     "key": [
       {
-        "headers": "h2"
+        "headers": "H2"
       }
     ],
     "name": "Multilimit test B",
@@ -284,7 +284,7 @@
     ],
     "name": "Limit per header",
     "pairwith": {
-      "headers": "limitheader"
+      "headers": "Limitheader"
     },
     "thresholds": [
       {

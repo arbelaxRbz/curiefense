@@ -3,28 +3,37 @@
     "list": [
       {
         "builtIn": 1,
-        "datasource": "-- Grafana --",
+        "datasource": {
+          "type": "datasource",
+          "uid": "grafana"
+        },
         "enable": true,
         "hide": true,
         "iconColor": "rgba(0, 211, 255, 1)",
         "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
         "type": "dashboard"
       }
     ]
   },
   "editable": true,
-  "gnetId": null,
-  "graphTooltip": 0,
-  "id": 6,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 1,
+  "id": 62,
   "links": [],
+  "liveNow": false,
   "panels": [
     {
-      "datasource": null,
-      "description": "text",
-      "fieldConfig": {
-        "defaults": {},
-        "overrides": []
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
       },
+      "description": "text",
       "gridPos": {
         "h": 3,
         "w": 24,
@@ -36,9 +45,13 @@
         "content": "<font size= \"10\"> <center>  Reblaze threats overview  </center></font> ",
         "mode": "markdown"
       },
-      "pluginVersion": "7.5.17",
+      "pluginVersion": "9.0.5",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
           "exemplar": true,
           "expr": "",
           "format": "time_series",
@@ -48,12 +61,13 @@
           "refId": "blocked"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "type": "text"
     },
     {
-      "datasource": null,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
+      },
       "description": "total number of requests  ",
       "fieldConfig": {
         "defaults": {
@@ -63,7 +77,8 @@
           "custom": {
             "align": "center",
             "displayMode": "auto",
-            "filterable": false
+            "filterable": false,
+            "inspect": false
           },
           "mappings": [],
           "thresholds": {
@@ -90,6 +105,13 @@
       },
       "id": 6,
       "options": {
+        "footer": {
+          "fields": "",
+          "reducer": [
+            "sum"
+          ],
+          "show": false
+        },
         "showHeader": true,
         "sortBy": [
           {
@@ -98,11 +120,15 @@
           }
         ]
       },
-      "pluginVersion": "7.5.17",
+      "pluginVersion": "9.0.5",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
           "exemplar": true,
-          "expr": "(sum(irate(hits_total[30s])))",
+          "expr": "(sum(increase(hits_total[5m])))",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -110,8 +136,6 @@
           "refId": "peak"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Traffic Peak ",
       "transformations": [
         {
@@ -129,7 +153,10 @@
       "type": "table"
     },
     {
-      "datasource": null,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
+      },
       "description": "total number of requests  labeled as human ",
       "fieldConfig": {
         "defaults": {
@@ -175,11 +202,15 @@
         "text": {},
         "textMode": "value"
       },
-      "pluginVersion": "7.5.17",
+      "pluginVersion": "9.0.5",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
           "exemplar": true,
-          "expr": "sum(irate(hits_total[30s])) ",
+          "expr": "sum(increase(hits_total[5m])) ",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -187,13 +218,14 @@
           "refId": "blocked"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Hits",
       "type": "stat"
     },
     {
-      "datasource": null,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
+      },
       "description": "total number of requests  labeled as human ",
       "fieldConfig": {
         "defaults": {
@@ -239,11 +271,15 @@
         "text": {},
         "textMode": "value"
       },
-      "pluginVersion": "7.5.17",
+      "pluginVersion": "9.0.5",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
           "exemplar": true,
-          "expr": "round(sum(irate(passed_total[30s])))",
+          "expr": "round(sum(increase(passed_total[5m])))",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -251,13 +287,14 @@
           "refId": "passed"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Passed",
       "type": "stat"
     },
     {
-      "datasource": null,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
+      },
       "description": "total number of requests  labeled as human ",
       "fieldConfig": {
         "defaults": {
@@ -299,11 +336,15 @@
         "text": {},
         "textMode": "value"
       },
-      "pluginVersion": "7.5.17",
+      "pluginVersion": "9.0.5",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
           "exemplar": true,
-          "expr": "round(sum(irate(hits_total[30s])) -  sum(irate(passed_total[30s])))",
+          "expr": "round(sum(increase(hits_total[5m])) -  sum(increase(passed_total[5m])))",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -311,13 +352,14 @@
           "refId": "blocked"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Blocked",
       "type": "stat"
     },
     {
-      "datasource": null,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
+      },
       "description": "total number of requests  labeled as report ",
       "fieldConfig": {
         "defaults": {
@@ -363,11 +405,15 @@
         "text": {},
         "textMode": "value"
       },
-      "pluginVersion": "7.5.17",
+      "pluginVersion": "9.0.5",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
           "exemplar": true,
-          "expr": "round(sum(irate(reported_total[30s])))",
+          "expr": "round(sum(increase(reported_total[5m])))",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -375,13 +421,14 @@
           "refId": "report"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Report",
       "type": "stat"
     },
     {
-      "datasource": null,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
+      },
       "description": "total number of requests  labeled as bot ",
       "fieldConfig": {
         "defaults": {
@@ -427,11 +474,15 @@
         "text": {},
         "textMode": "value"
       },
-      "pluginVersion": "7.5.17",
+      "pluginVersion": "9.0.5",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
           "exemplar": true,
-          "expr": "sum(irate(hits_total[30s]))",
+          "expr": "sum(increase(hits_total[5m]))",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -439,13 +490,14 @@
           "refId": "bots"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "bot",
       "type": "stat"
     },
     {
-      "datasource": null,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
+      },
       "description": "total number of requests  labeled as human ",
       "fieldConfig": {
         "defaults": {
@@ -491,11 +543,15 @@
         "text": {},
         "textMode": "value"
       },
-      "pluginVersion": "7.5.17",
+      "pluginVersion": "9.0.5",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
           "exemplar": true,
-          "expr": "sum(irate(human_total[30s]))",
+          "expr": "sum(increase(human_total[5m]))",
           "format": "time_series",
           "instant": false,
           "interval": "1m",
@@ -503,13 +559,14 @@
           "refId": "huma"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Human",
       "type": "stat"
     },
     {
-      "datasource": null,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
+      },
       "description": "total number of requests  labeled as human ",
       "fieldConfig": {
         "defaults": {
@@ -555,11 +612,15 @@
         "text": {},
         "textMode": "value"
       },
-      "pluginVersion": "7.5.17",
+      "pluginVersion": "9.0.5",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
           "exemplar": true,
-          "expr": "sum(irate(challenge_total[30s]))",
+          "expr": "sum(increase(challenge_total[5m]))",
           "format": "time_series",
           "instant": false,
           "interval": "1m",
@@ -567,13 +628,14 @@
           "refId": "human"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Challenge",
       "type": "stat"
     },
     {
-      "datasource": null,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
+      },
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -591,7 +653,8 @@
             "hideFrom": {
               "graph": false,
               "legend": false,
-              "tooltip": false
+              "tooltip": false,
+              "viz": false
             },
             "lineInterpolation": "smooth",
             "lineWidth": 2,
@@ -600,16 +663,23 @@
               "type": "linear"
             },
             "showPoints": "always",
-            "spanNulls": true
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [
             {
-              "from": "",
-              "id": 1,
-              "text": "",
-              "to": "",
-              "type": 1,
-              "value": ""
+              "options": {
+                "": {
+                  "text": ""
+                }
+              },
+              "type": "value"
             }
           ],
           "thresholds": {
@@ -689,47 +759,62 @@
           "displayMode": "list",
           "placement": "bottom"
         },
-        "tooltipOptions": {
-          "mode": "single"
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
         }
       },
       "pluginVersion": "7.5.17",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
           "exemplar": true,
-          "expr": "sum(irate(hits_total[30s]))",
+          "expr": "sum(increase(hits_total[5m]))",
           "hide": false,
           "interval": "",
           "legendFormat": "hits",
           "refId": "requests total "
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
           "exemplar": true,
-          "expr": "sum(irate(hits_total[30s])) - sum(irate(passed_total[30s]))",
+          "expr": "sum(increase(hits_total[5m])) - sum(increase(passed_total[5m]))",
           "hide": false,
           "interval": "",
           "legendFormat": "blocked",
           "refId": "blocked"
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
           "exemplar": true,
-          "expr": "sum(irate(passed_total[30s]))",
+          "expr": "sum(increase(passed_total[5m]))",
           "hide": false,
           "interval": "",
           "legendFormat": "passed",
           "refId": "passed"
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
           "exemplar": true,
-          "expr": "sum(irate(reported_total[30s]))",
+          "expr": "sum(increase(reported_total[5m]))",
           "hide": false,
           "interval": "",
           "legendFormat": "report",
           "refId": "report"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Traffic overview",
       "type": "timeseries"
     },
@@ -742,7 +827,10 @@
       "bars": true,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
+      },
       "description": "Ratio of blocked,  passed, reported requests",
       "fieldConfig": {
         "defaults": {
@@ -766,9 +854,9 @@
         "current": false,
         "max": false,
         "min": false,
-        "show": true,
-        "total": true,
-        "values": true
+        "show": false,
+        "total": false,
+        "values": false
       },
       "lines": false,
       "linewidth": 1,
@@ -777,7 +865,7 @@
         "alertThreshold": true
       },
       "percentage": true,
-      "pluginVersion": "7.5.17",
+      "pluginVersion": "9.0.5",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -787,24 +875,36 @@
       "steppedLine": false,
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
           "exemplar": true,
-          "expr": "round(sum(irate(hits_total[30s])) - sum(irate(passed_total[30s])))",
+          "expr": "round(sum(increase(hits_total[5m])) - sum(increase(passed_total[5m])))",
           "hide": false,
           "interval": "",
           "legendFormat": "blocked",
           "refId": "blocked"
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
           "exemplar": true,
-          "expr": "round(sum(irate(passed_total[30s])))",
+          "expr": "round(sum(increase(passed_total[5m])))",
           "hide": false,
           "interval": "",
           "legendFormat": "passed",
           "refId": "passed"
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
           "exemplar": true,
-          "expr": "round(sum(irate(reported_total[30s])))",
+          "expr": "round(sum(increase(reported_total[5m])))",
           "hide": false,
           "interval": "",
           "legendFormat": "report",
@@ -812,9 +912,7 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "Traffic overview (ratio)",
       "tooltip": {
         "shared": true,
@@ -824,39 +922,31 @@
       "transparent": true,
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
       "yaxes": [
         {
-          "$$hashKey": "object:233",
           "format": "short",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         },
         {
-          "$$hashKey": "object:234",
           "format": "short",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
-      "datasource": null,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
+      },
       "description": "total number of requests  grouped by http method",
       "fieldConfig": {
         "defaults": {
@@ -873,7 +963,8 @@
             "hideFrom": {
               "graph": false,
               "legend": false,
-              "tooltip": false
+              "tooltip": false,
+              "viz": false
             },
             "lineInterpolation": "smooth",
             "lineStyle": {
@@ -885,7 +976,14 @@
               "type": "linear"
             },
             "showPoints": "never",
-            "spanNulls": true
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "thresholds": {
@@ -915,19 +1013,28 @@
       "options": {
         "graph": {},
         "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom"
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "sortBy": "Total",
+          "sortDesc": true
         },
-        "tooltipOptions": {
-          "mode": "single"
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
         }
       },
       "pluginVersion": "7.5.17",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
           "exemplar": true,
-          "expr": " sum by (method) (irate(methods_total[10s]))",
+          "expr": " sum by (method) (increase(methods_total[5m]))",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -935,6 +1042,10 @@
           "refId": "bots total"
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
           "exemplar": true,
           "expr": "",
           "hide": false,
@@ -943,13 +1054,14 @@
           "refId": "A"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Methods",
       "type": "timeseries"
     },
     {
-      "datasource": null,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
+      },
       "description": "total number of requests  grouped by http statuses",
       "fieldConfig": {
         "defaults": {
@@ -966,7 +1078,8 @@
             "hideFrom": {
               "graph": false,
               "legend": false,
-              "tooltip": false
+              "tooltip": false,
+              "viz": false
             },
             "lineInterpolation": "smooth",
             "lineStyle": {
@@ -978,7 +1091,14 @@
               "type": "linear"
             },
             "showPoints": "never",
-            "spanNulls": true
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "thresholds": {
@@ -1008,19 +1128,28 @@
       "options": {
         "graph": {},
         "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom"
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "right",
+          "sortBy": "Total",
+          "sortDesc": true
         },
-        "tooltipOptions": {
-          "mode": "single"
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
         }
       },
       "pluginVersion": "7.5.17",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
           "exemplar": true,
-          "expr": " sum by (code) (irate(status_total[10s])) ",
+          "expr": " sum by (code) (increase(status_total[5m])) ",
           "format": "time_series",
           "instant": false,
           "interval": "10s",
@@ -1028,13 +1157,14 @@
           "refId": "bots total"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Statuses",
+      "title": "Status Codes",
       "type": "timeseries"
     },
     {
-      "datasource": null,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
+      },
       "description": "",
       "fieldConfig": {
         "defaults": {
@@ -1051,7 +1181,8 @@
             "hideFrom": {
               "graph": false,
               "legend": false,
-              "tooltip": false
+              "tooltip": false,
+              "viz": false
             },
             "lineInterpolation": "smooth",
             "lineStyle": {
@@ -1063,7 +1194,221 @@
               "type": "linear"
             },
             "showPoints": "never",
-            "spanNulls": true
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "yellow",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 0,
+        "y": 31
+      },
+      "id": 35,
+      "options": {
+        "graph": {},
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "right"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "7.5.17",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "round(sum by (tag) (increase(top_rtc_active_total[5m])))",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "tags_active"
+        }
+      ],
+      "title": "Top Active Threats",
+      "transformations": [],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "gradientMode": "hue",
+            "hideFrom": {
+              "graph": false,
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "smooth",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "yellow",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 6,
+        "w": 12,
+        "x": 12,
+        "y": 31
+      },
+      "id": 54,
+      "options": {
+        "graph": {},
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "right"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "7.5.17",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "exemplar": true,
+          "expr": "round(sum by (tag) (increase(top_rtc_reported_total[5m]))) ",
+          "hide": false,
+          "interval": "",
+          "legendFormat": "{{tag}}",
+          "range": true,
+          "refId": "tags_active"
+        }
+      ],
+      "title": "Top Reported Threats",
+      "transformations": [],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "gradientMode": "hue",
+            "hideFrom": {
+              "graph": false,
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "smooth",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "thresholds": {
@@ -1085,44 +1430,147 @@
       },
       "gridPos": {
         "h": 7,
-        "w": 24,
+        "w": 12,
         "x": 0,
-        "y": 31
+        "y": 37
       },
-      "id": 35,
+      "id": 53,
       "options": {
         "graph": {},
         "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom"
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "right"
         },
-        "tooltipOptions": {
-          "mode": "single"
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
         }
       },
       "pluginVersion": "7.5.17",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
           "exemplar": true,
-          "expr": "round(sum by (tag) (irate(top_tags_reported_total[10s]))) ",
+          "expr": "round(sum by (tag) (increase(top_tags_active_total{tag!=\"rtc.*\"}[5m]))) ",
           "hide": false,
           "interval": "",
-          "legendFormat": "report: {{tag}}",
+          "legendFormat": "{{tag}}",
+          "range": true,
           "refId": "tags_report"
-        },
-        {
-          "exemplar": true,
-          "expr": "round(sum by (tag) (irate(top_tags_active_total[10s]))) ",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "active:{{tag}}",
-          "refId": "tags_active"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Tags",
+      "title": "Top Active Tags",
+      "transformations": [],
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
+      },
+      "description": "",
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 15,
+            "gradientMode": "hue",
+            "hideFrom": {
+              "graph": false,
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "smooth",
+            "lineStyle": {
+              "fill": "solid"
+            },
+            "lineWidth": 2,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "never",
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "yellow",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 80
+              }
+            ]
+          },
+          "unit": "short"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 7,
+        "w": 12,
+        "x": 12,
+        "y": 37
+      },
+      "id": 55,
+      "options": {
+        "graph": {},
+        "legend": {
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "right"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
+      },
+      "pluginVersion": "7.5.17",
+      "targets": [
+        {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
+          "exemplar": false,
+          "expr": "round(sum by (tag) (increase(top_tags_reported_total{tag!=\"rtc.*\"}[5m]))) ",
+          "hide": false,
+          "instant": false,
+          "interval": "",
+          "legendFormat": "__auto",
+          "range": true,
+          "refId": "tags_report"
+        }
+      ],
+      "title": "Top Reported Tags",
       "transformations": [],
       "type": "timeseries"
     },
@@ -1134,19 +1582,18 @@
       "bars": true,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
-      "description": "Number of  requests  per  unique  args  divided  into categories  (from 0 to 5, 6-10, 11-20,  greater then 21)",
-      "fieldConfig": {
-        "defaults": {},
-        "overrides": []
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
       },
+      "description": "Number of  requests  per  unique  args  divided  into categories  (from 0 to 5, 6-10, 11-20,  greater then 21)",
       "fill": 1,
       "fillGradient": 4,
       "gridPos": {
-        "h": 9,
+        "h": 8,
         "w": 8,
         "x": 0,
-        "y": 38
+        "y": 44
       },
       "hiddenSeries": false,
       "id": 37,
@@ -1169,7 +1616,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.5.17",
+      "pluginVersion": "9.0.5",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1179,8 +1626,12 @@
       "steppedLine": false,
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
           "exemplar": true,
-          "expr": " round(sum by (group) (irate(top_max_args_per_request[10s]))) ",
+          "expr": " round(sum by (group) (increase(top_max_args_per_request[5m]))) ",
           "hide": false,
           "interval": "",
           "legendFormat": "args:{{group}}",
@@ -1188,9 +1639,7 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "Unique Arguments per request",
       "tooltip": {
         "shared": true,
@@ -1205,35 +1654,24 @@
       ],
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
       "yaxes": [
         {
-          "$$hashKey": "object:559",
           "format": "short",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         },
         {
-          "$$hashKey": "object:560",
           "format": "short",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
@@ -1244,19 +1682,18 @@
       "bars": true,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
-      "description": "Number of  requests  per  unique  Headers  divided  into categories  (from 0 to 5, 6-10, 11-20,  greater then 21)",
-      "fieldConfig": {
-        "defaults": {},
-        "overrides": []
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
       },
+      "description": "Number of  requests  per  unique  Headers  divided  into categories  (from 0 to 5, 6-10, 11-20,  greater then 21)",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
-        "h": 9,
+        "h": 8,
         "w": 8,
         "x": 8,
-        "y": 38
+        "y": 44
       },
       "hiddenSeries": false,
       "id": 17,
@@ -1277,7 +1714,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.5.17",
+      "pluginVersion": "9.0.5",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1287,8 +1724,12 @@
       "steppedLine": false,
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
           "exemplar": true,
-          "expr": "round(sum by (group) (irate(top_max_headers_per_request[10s]))) ",
+          "expr": "round(sum by (group) (increase(top_max_headers_per_request[5m]))) ",
           "hide": false,
           "interval": "",
           "legendFormat": "headers:{{group}}",
@@ -1296,9 +1737,7 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "Unique Headers per request",
       "tooltip": {
         "shared": true,
@@ -1313,35 +1752,24 @@
       ],
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
       "yaxes": [
         {
-          "$$hashKey": "object:651",
           "format": "short",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         },
         {
-          "$$hashKey": "object:652",
           "format": "short",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
@@ -1352,19 +1780,18 @@
       "bars": true,
       "dashLength": 10,
       "dashes": false,
-      "datasource": null,
-      "description": "Number of  requests  per  unique  Cookies  divided  into categories  (from 0 to 5, 6-10, 11-20,  greater then 21)",
-      "fieldConfig": {
-        "defaults": {},
-        "overrides": []
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
       },
+      "description": "Number of  requests  per  unique  Cookies  divided  into categories  (from 0 to 5, 6-10, 11-20,  greater then 21)",
       "fill": 1,
       "fillGradient": 0,
       "gridPos": {
-        "h": 9,
+        "h": 8,
         "w": 8,
         "x": 16,
-        "y": 38
+        "y": 44
       },
       "hiddenSeries": false,
       "id": 38,
@@ -1375,6 +1802,8 @@
         "max": false,
         "min": false,
         "show": true,
+        "sort": "total",
+        "sortDesc": false,
         "total": true,
         "values": true
       },
@@ -1385,7 +1814,7 @@
         "alertThreshold": true
       },
       "percentage": false,
-      "pluginVersion": "7.5.17",
+      "pluginVersion": "9.0.5",
       "pointradius": 2,
       "points": false,
       "renderer": "flot",
@@ -1395,8 +1824,12 @@
       "steppedLine": false,
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
           "exemplar": true,
-          "expr": "round(sum by (group) (irate(top_max_cookies_per_request[10s]))) ",
+          "expr": "round(sum by (group) (increase(top_max_cookies_per_request[5m]))) ",
           "hide": false,
           "interval": "",
           "legendFormat": "cookies:{{group}}",
@@ -1404,9 +1837,7 @@
         }
       ],
       "thresholds": [],
-      "timeFrom": null,
       "timeRegions": [],
-      "timeShift": null,
       "title": "Unique Cookies per request",
       "tooltip": {
         "shared": true,
@@ -1421,39 +1852,31 @@
       ],
       "type": "graph",
       "xaxis": {
-        "buckets": null,
         "mode": "time",
-        "name": null,
         "show": true,
         "values": []
       },
       "yaxes": [
         {
-          "$$hashKey": "object:895",
           "format": "short",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         },
         {
-          "$$hashKey": "object:896",
           "format": "short",
-          "label": null,
           "logBase": 1,
-          "max": null,
-          "min": null,
           "show": true
         }
       ],
       "yaxis": {
-        "align": false,
-        "alignLevel": null
+        "align": false
       }
     },
     {
-      "datasource": null,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
+      },
       "description": "total number of requests  labeled  with ruleid ",
       "fieldConfig": {
         "defaults": {
@@ -1478,10 +1901,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
-        "w": 8,
+        "h": 4,
+        "w": 6,
         "x": 0,
-        "y": 47
+        "y": 52
       },
       "id": 32,
       "options": {
@@ -1499,11 +1922,15 @@
         "text": {},
         "textMode": "value"
       },
-      "pluginVersion": "7.5.17",
+      "pluginVersion": "9.0.5",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
           "exemplar": true,
-          "expr": "sum(irate(requests_triggered_globalfilter_active_total[30s]))",
+          "expr": "sum(increase(requests_triggered_globalfilter_active_total[5m]))",
           "format": "time_series",
           "instant": false,
           "interval": "1m",
@@ -1511,21 +1938,26 @@
           "refId": "active"
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
           "exemplar": true,
-          "expr": "sum(irate(requests_triggered_globalfilter_report_total[30s]))",
+          "expr": "sum(increase(requests_triggered_globalfilter_report_total[5m]))",
           "hide": false,
           "interval": "",
           "legendFormat": "report",
           "refId": "report"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Global Filter",
       "type": "stat"
     },
     {
-      "datasource": null,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
+      },
       "description": "total number of requests  labeled  with ruleid ",
       "fieldConfig": {
         "defaults": {
@@ -1550,10 +1982,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
-        "w": 8,
-        "x": 8,
-        "y": 47
+        "h": 4,
+        "w": 6,
+        "x": 6,
+        "y": 52
       },
       "id": 31,
       "options": {
@@ -1571,11 +2003,15 @@
         "text": {},
         "textMode": "value"
       },
-      "pluginVersion": "7.5.17",
+      "pluginVersion": "9.0.5",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
           "exemplar": true,
-          "expr": "sum(irate(requests_triggered_ratelimit_active_total[30s]))",
+          "expr": "sum(increase(requests_triggered_ratelimit_active_total[5m]))",
           "format": "time_series",
           "instant": false,
           "interval": "1m",
@@ -1583,21 +2019,26 @@
           "refId": "active"
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
           "exemplar": true,
-          "expr": "sum(irate(requests_triggered_ratelimit_report_total[30s]))",
+          "expr": "sum(increase(requests_triggered_ratelimit_report_total[5m]))",
           "hide": false,
           "interval": "",
           "legendFormat": "report",
           "refId": "report"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Rate Limit",
       "type": "stat"
     },
     {
-      "datasource": null,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
+      },
       "description": "total number of requests  labeled  with ruleid ",
       "fieldConfig": {
         "defaults": {
@@ -1622,10 +2063,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 6,
-        "w": 8,
-        "x": 16,
-        "y": 47
+        "h": 4,
+        "w": 6,
+        "x": 12,
+        "y": 52
       },
       "id": 30,
       "options": {
@@ -1643,11 +2084,15 @@
         "text": {},
         "textMode": "value"
       },
-      "pluginVersion": "7.5.17",
+      "pluginVersion": "9.0.5",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
           "exemplar": true,
-          "expr": "sum(irate(requests_triggered_acl_active_total[30s]))",
+          "expr": "sum(increase(requests_triggered_acl_active_total[5m]))",
           "format": "time_series",
           "instant": false,
           "interval": "1m",
@@ -1655,99 +2100,26 @@
           "refId": "active"
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
           "exemplar": true,
-          "expr": "sum(irate(requests_triggered_acl_report_total[30s]))",
+          "expr": "sum(increase(requests_triggered_acl_report_total[5m]))",
           "hide": false,
           "interval": "",
           "legendFormat": "report",
           "refId": "report"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "ACL",
       "type": "stat"
     },
     {
-      "datasource": null,
-      "description": "number of requests grouped by risk level ",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "dark-green",
-                "value": null
-              },
-              {
-                "color": "orange",
-                "value": 1000
-              },
-              {
-                "color": "semi-dark-red",
-                "value": 5000
-              }
-            ]
-          }
-        },
-        "overrides": []
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
       },
-      "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 0,
-        "y": 53
-      },
-      "id": 49,
-      "options": {
-        "orientation": "horizontal",
-        "reduceOptions": {
-          "calcs": [
-            "max"
-          ],
-          "fields": "",
-          "values": false
-        },
-        "showThresholdLabels": false,
-        "showThresholdMarkers": true,
-        "text": {}
-      },
-      "pluginVersion": "7.5.17",
-      "targets": [
-        {
-          "exemplar": true,
-          "expr": "(round(sum by (level) (irate(risk_level_active_total[10s])) ))",
-          "format": "time_series",
-          "instant": false,
-          "interval": "",
-          "legendFormat": "Risk Level Report : {{level}}",
-          "refId": "class x"
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Risk Level ",
-      "transformations": [
-        {
-          "id": "reduce",
-          "options": {
-            "includeTimeField": false,
-            "mode": "reduceFields",
-            "reducers": [
-              "sum"
-            ]
-          }
-        }
-      ],
-      "type": "gauge"
-    },
-    {
-      "datasource": null,
       "description": "total number of requests  labeled  by  ruleid  (CF rule)",
       "fieldConfig": {
         "defaults": {
@@ -1772,10 +2144,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 8,
-        "w": 8,
-        "x": 8,
-        "y": 53
+        "h": 4,
+        "w": 6,
+        "x": 18,
+        "y": 52
       },
       "id": 9,
       "options": {
@@ -1793,11 +2165,15 @@
         "text": {},
         "textMode": "value"
       },
-      "pluginVersion": "7.5.17",
+      "pluginVersion": "9.0.5",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
           "exemplar": true,
-          "expr": "sum(irate(requests_triggered_cf_active_total[30s]))",
+          "expr": "sum(increase(requests_triggered_cf_active_total[5m]))",
           "format": "time_series",
           "instant": false,
           "interval": "1m",
@@ -1805,200 +2181,87 @@
           "refId": "active"
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
           "exemplar": true,
-          "expr": "sum(irate(requests_triggered_cf_report_total[30s]))",
+          "expr": "sum(increase(requests_triggered_cf_report_total[5m]))",
           "hide": false,
           "interval": "",
           "legendFormat": "report",
           "refId": "report"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Content Filter ",
       "type": "stat"
     },
     {
-      "datasource": null,
-      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
+      },
+      "description": "number of requests grouped by risk level ",
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 15,
-            "gradientMode": "hue",
-            "hideFrom": {
-              "graph": false,
-              "legend": false,
-              "tooltip": false
-            },
-            "lineInterpolation": "smooth",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": true
-          },
           "mappings": [],
           "thresholds": {
-            "mode": "absolute",
+            "mode": "percentage",
             "steps": [
               {
-                "color": "yellow",
+                "color": "green",
                 "value": null
               },
               {
-                "color": "green",
-                "value": 80
+                "color": "orange",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 85
               }
             ]
-          },
-          "unit": "short"
+          }
         },
         "overrides": []
       },
       "gridPos": {
         "h": 8,
-        "w": 8,
-        "x": 16,
-        "y": 53
-      },
-      "id": 51,
-      "options": {
-        "graph": {},
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltipOptions": {
-          "mode": "single"
-        }
-      },
-      "pluginVersion": "7.5.17",
-      "targets": [
-        {
-          "exemplar": true,
-          "expr": "round(sum by (tag) (irate(top_tags_reported_total{tag=~\"rtc.*\"}[10s]))) ",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "report: {{tag}}",
-          "refId": "tags_report"
-        },
-        {
-          "exemplar": true,
-          "expr": "round(sum by (tag) (irate(top_tags_active_total{tag=~\"rtc.*\"}[10s]))) ",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "active:{{tag}}",
-          "refId": "tags_active"
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Reblaze Threat Categories",
-      "transformations": [],
-      "type": "timeseries"
-    },
-    {
-      "datasource": null,
-      "description": "",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "rgb(237, 230, 231)",
-                "value": null
-              },
-              {
-                "color": "dark-orange",
-                "value": 100
-              },
-              {
-                "color": "light-yellow",
-                "value": 1000
-              },
-              {
-                "color": "dark-green",
-                "value": 10000
-              },
-              {
-                "color": "light-orange",
-                "value": 100000
-              }
-            ]
-          }
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 10,
-        "w": 24,
+        "w": 12,
         "x": 0,
-        "y": 61
+        "y": 56
       },
-      "id": 47,
+      "id": 45,
       "options": {
-        "displayMode": "lcd",
-        "orientation": "vertical",
+        "orientation": "auto",
         "reduceOptions": {
           "calcs": [
-            "sum"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
         },
-        "showUnfilled": true,
-        "text": {}
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
       },
-      "pluginVersion": "7.5.17",
+      "pluginVersion": "9.0.5",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
           "exemplar": true,
-          "expr": "round(sum by (secpolentryid) (irate(top_secpolentryid_active_total[10s])))",
+          "expr": "(round(sum by (level) (increase(risk_level_active_total[5m])) ))",
           "format": "time_series",
           "instant": false,
           "interval": "",
-          "legendFormat": "active:{{secpolentryid}}",
-          "refId": "class x"
-        },
-        {
-          "exemplar": true,
-          "expr": "round(sum by (secpolentryid) (irate(top_secpolid_passed_total[10s])))",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "passed:{{secpolentryid}}",
-          "refId": "A"
-        },
-        {
-          "exemplar": true,
-          "expr": "round(sum by (secpolentryid) (irate(top_secpolid_reported_total[10s]))) ",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "reported:{{secpolentryid}}",
-          "refId": "B"
+          "legendFormat": "Risk Level Blocked : {{level}}",
+          "refId": "risk level"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Security  Policy Entry  ID",
+      "title": "Risk Level Blocked",
       "transformations": [
         {
           "id": "reduce",
@@ -2011,39 +2274,31 @@
           }
         }
       ],
-      "type": "bargauge"
+      "type": "gauge"
     },
     {
-      "datasource": null,
-      "description": "",
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
+      },
+      "description": "number of requests grouped by risk level ",
       "fieldConfig": {
         "defaults": {
-          "color": {
-            "mode": "thresholds"
-          },
           "mappings": [],
           "thresholds": {
-            "mode": "absolute",
+            "mode": "percentage",
             "steps": [
               {
-                "color": "rgb(11, 11, 145)",
+                "color": "green",
                 "value": null
               },
               {
-                "color": "rgb(11, 11, 145)",
-                "value": 100
+                "color": "orange",
+                "value": 70
               },
               {
-                "color": "semi-dark-blue",
-                "value": 1000
-              },
-              {
-                "color": "light-blue",
-                "value": 10000
-              },
-              {
-                "color": "super-light-blue",
-                "value": 100000
+                "color": "red",
+                "value": 85
               }
             ]
           }
@@ -2051,56 +2306,42 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 10,
-        "w": 24,
-        "x": 0,
-        "y": 71
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 56
       },
-      "id": 46,
+      "id": 52,
       "options": {
-        "displayMode": "gradient",
-        "orientation": "vertical",
+        "orientation": "auto",
         "reduceOptions": {
           "calcs": [
-            "sum"
+            "lastNotNull"
           ],
           "fields": "",
           "values": false
         },
-        "showUnfilled": true,
-        "text": {}
+        "showThresholdLabels": false,
+        "showThresholdMarkers": true
       },
-      "pluginVersion": "7.5.17",
+      "pluginVersion": "9.0.5",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
+          "editorMode": "code",
           "exemplar": true,
-          "expr": "round(sum by (secpolid) (irate(top_secpolid_active_total[10s])))",
+          "expr": "(round(sum by (level) (increase(risk_level_report_total[5m])) ))",
           "format": "time_series",
           "instant": false,
           "interval": "",
-          "legendFormat": "active:{{secpolid}}",
-          "refId": "class x"
-        },
-        {
-          "exemplar": true,
-          "expr": "round(sum by (secpolid) (irate(top_secpolid_passed_total[10s])))",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "passed:{{secpolid}}",
-          "refId": "A"
-        },
-        {
-          "exemplar": true,
-          "expr": "round(sum by (secpolid) (irate(top_secpolid_reported_total[10s]))) ",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "reported:{{secpolid}}",
-          "refId": "B"
+          "legendFormat": "Risk Level Report : {{level}}",
+          "refId": "risk level"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Security  Policy  ID",
+      "title": "Risk Level Reported",
       "transformations": [
         {
           "id": "reduce",
@@ -2113,10 +2354,13 @@
           }
         }
       ],
-      "type": "bargauge"
+      "type": "gauge"
     },
     {
-      "datasource": null,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
+      },
       "description": "total number of requests  grouped by http status",
       "fieldConfig": {
         "defaults": {
@@ -2126,6 +2370,7 @@
           "custom": {
             "axisLabel": "",
             "axisPlacement": "auto",
+            "axisSoftMin": 0,
             "barAlignment": 0,
             "drawStyle": "line",
             "fillOpacity": 15,
@@ -2133,7 +2378,8 @@
             "hideFrom": {
               "graph": false,
               "legend": false,
-              "tooltip": false
+              "tooltip": false,
+              "viz": false
             },
             "lineInterpolation": "smooth",
             "lineStyle": {
@@ -2145,9 +2391,17 @@
               "type": "linear"
             },
             "showPoints": "never",
-            "spanNulls": true
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
+          "min": 0,
           "thresholds": {
             "mode": "absolute",
             "steps": [
@@ -2166,28 +2420,37 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 10,
+        "h": 12,
         "w": 24,
         "x": 0,
-        "y": 81
+        "y": 64
       },
       "id": 14,
       "options": {
         "graph": {},
         "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom"
+          "calcs": [
+            "sum"
+          ],
+          "displayMode": "table",
+          "placement": "bottom",
+          "sortBy": "Total",
+          "sortDesc": true
         },
-        "tooltipOptions": {
-          "mode": "single"
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
         }
       },
       "pluginVersion": "7.5.17",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
           "exemplar": true,
-          "expr": "sum by (ruleid) (irate(top_ruleid_active_total[10s])) ",
+          "expr": "sum by (ruleid) (increase(top_ruleid_active_total[5m])) ",
           "format": "time_series",
           "instant": false,
           "interval": "10s",
@@ -2195,14 +2458,15 @@
           "refId": "bots total"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Reblaze Signatures (CF)",
       "transformations": [],
       "type": "timeseries"
     },
     {
-      "datasource": null,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
+      },
       "description": "Requests  labeled by ACL",
       "fieldConfig": {
         "defaults": {
@@ -2219,7 +2483,8 @@
             "hideFrom": {
               "graph": false,
               "legend": false,
-              "tooltip": false
+              "tooltip": false,
+              "viz": false
             },
             "lineInterpolation": "smooth",
             "lineStyle": {
@@ -2231,7 +2496,14 @@
               "type": "linear"
             },
             "showPoints": "never",
-            "spanNulls": true
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "thresholds": {
@@ -2295,7 +2567,7 @@
         "h": 7,
         "w": 24,
         "x": 0,
-        "y": 91
+        "y": 76
       },
       "id": 26,
       "options": {
@@ -2305,15 +2577,20 @@
           "displayMode": "list",
           "placement": "bottom"
         },
-        "tooltipOptions": {
-          "mode": "single"
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
         }
       },
       "pluginVersion": "7.5.17",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
           "exemplar": true,
-          "expr": "sum by (aclid) (irate(top_aclid_passed_total[10s])) ",
+          "expr": "sum by (aclid) (increase(top_aclid_passed_total[5m])) ",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -2321,215 +2598,14 @@
           "refId": "top_aclid_passed_total"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Requests Triggered by Access Control List (ACL)",
       "type": "timeseries"
     },
     {
-      "datasource": null,
-      "description": "Requests  grouped by Policy Entry ID name ",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 15,
-            "gradientMode": "hue",
-            "hideFrom": {
-              "graph": false,
-              "legend": false,
-              "tooltip": false
-            },
-            "lineInterpolation": "smooth",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": true
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "yellow",
-                "value": null
-              },
-              {
-                "color": "green",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
       },
-      "gridPos": {
-        "h": 7,
-        "w": 24,
-        "x": 0,
-        "y": 98
-      },
-      "id": 33,
-      "options": {
-        "graph": {},
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltipOptions": {
-          "mode": "single"
-        }
-      },
-      "pluginVersion": "7.5.17",
-      "targets": [
-        {
-          "exemplar": true,
-          "expr": "sum by (secpolentryid) (irate(top_secpolentryid_passed_total[10s])) ",
-          "format": "time_series",
-          "instant": false,
-          "interval": "",
-          "legendFormat": "passed: {{secpolentryid}}",
-          "refId": "top_secpolentryid_passed_total"
-        },
-        {
-          "exemplar": true,
-          "expr": "sum by (secpolentryid) (irate(top_secpolentryid_reported_total[10s])) ",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "report: {{secpolentryid}}",
-          "refId": "top_secpolentryid_report_total"
-        },
-        {
-          "exemplar": true,
-          "expr": "sum by (secpolentryid) (irate(top_secpolentryid_passed_total[10s])) + sum by (secpolid) (irate(top_secpolentryid_reported_total[10s])) ",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "total: {{secpolentryid}}",
-          "refId": "top_secpolentryid_total"
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Requests Triggered by Security Policy Entry ID",
-      "type": "timeseries"
-    },
-    {
-      "datasource": null,
-      "description": "Requests  grouped by Policy ID name ",
-      "fieldConfig": {
-        "defaults": {
-          "color": {
-            "mode": "palette-classic"
-          },
-          "custom": {
-            "axisLabel": "",
-            "axisPlacement": "auto",
-            "barAlignment": 0,
-            "drawStyle": "line",
-            "fillOpacity": 15,
-            "gradientMode": "hue",
-            "hideFrom": {
-              "graph": false,
-              "legend": false,
-              "tooltip": false
-            },
-            "lineInterpolation": "smooth",
-            "lineStyle": {
-              "fill": "solid"
-            },
-            "lineWidth": 2,
-            "pointSize": 5,
-            "scaleDistribution": {
-              "type": "linear"
-            },
-            "showPoints": "never",
-            "spanNulls": true
-          },
-          "mappings": [],
-          "thresholds": {
-            "mode": "absolute",
-            "steps": [
-              {
-                "color": "yellow",
-                "value": null
-              },
-              {
-                "color": "green",
-                "value": 80
-              }
-            ]
-          },
-          "unit": "short"
-        },
-        "overrides": []
-      },
-      "gridPos": {
-        "h": 7,
-        "w": 24,
-        "x": 0,
-        "y": 105
-      },
-      "id": 34,
-      "options": {
-        "graph": {},
-        "legend": {
-          "calcs": [],
-          "displayMode": "list",
-          "placement": "bottom"
-        },
-        "tooltipOptions": {
-          "mode": "single"
-        }
-      },
-      "pluginVersion": "7.5.17",
-      "targets": [
-        {
-          "exemplar": true,
-          "expr": "sum by (secpolid) (irate(top_secpolid_passed_total[10s])) ",
-          "format": "time_series",
-          "instant": false,
-          "interval": "",
-          "legendFormat": "passed: {{secpolid}}",
-          "refId": "top_secpolentryid_passed_total"
-        },
-        {
-          "exemplar": true,
-          "expr": "sum by (secpolid) (irate(top_secpolid_reported_total[10s])) ",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "report: {{secpolid}}",
-          "refId": "top_secpolentryid_report_total"
-        },
-        {
-          "exemplar": true,
-          "expr": "(sum by (secpolidntryid) (irate(top_secpolid_passed_total[10s])) )+ (sum by (secpolid) (irate(top_secpolid_reported_total[10s])) )",
-          "hide": false,
-          "interval": "",
-          "legendFormat": "total: {{secpolid}}",
-          "refId": "top_secpolentryid_total"
-        }
-      ],
-      "timeFrom": null,
-      "timeShift": null,
-      "title": "Requests Triggered by Security Policy ID",
-      "type": "timeseries"
-    },
-    {
-      "datasource": null,
       "description": "Number of blocked  requests per HTTP requests section  (URI, args, attrs, body, headers )",
       "fieldConfig": {
         "defaults": {
@@ -2546,7 +2622,8 @@
             "hideFrom": {
               "graph": false,
               "legend": false,
-              "tooltip": false
+              "tooltip": false,
+              "viz": false
             },
             "lineInterpolation": "smooth",
             "lineStyle": {
@@ -2558,7 +2635,14 @@
               "type": "linear"
             },
             "showPoints": "never",
-            "spanNulls": true
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "thresholds": {
@@ -2579,10 +2663,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 12,
-        "w": 12,
+        "h": 7,
+        "w": 24,
         "x": 0,
-        "y": 112
+        "y": 83
       },
       "id": 39,
       "options": {
@@ -2592,17 +2676,24 @@
             "sum"
           ],
           "displayMode": "table",
-          "placement": "bottom"
+          "placement": "bottom",
+          "sortBy": "Total",
+          "sortDesc": true
         },
-        "tooltipOptions": {
-          "mode": "single"
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
         }
       },
       "pluginVersion": "7.5.17",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
           "exemplar": true,
-          "expr": "round(irate(section_active_total[10s]))",
+          "expr": "round(increase(section_active_total[5m]))",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -2610,24 +2701,30 @@
           "refId": "top_secpolentryid_passed_total"
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
           "exemplar": true,
-          "expr": "round(irate(section_passed_total[10s])) ",
+          "expr": "round(increase(section_passed_total[5m])) ",
           "hide": false,
           "interval": "",
           "legendFormat": "passed:{{section}}",
           "refId": "A"
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
           "exemplar": true,
-          "expr": "round(irate(section_reported_total[10s])) ",
+          "expr": "round(increase(section_reported_total[5m])) ",
           "hide": false,
           "interval": "",
           "legendFormat": "repot:{{section}}",
           "refId": "B"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Blocked Sections",
       "transformations": [
         {
@@ -2641,7 +2738,10 @@
       "type": "timeseries"
     },
     {
-      "datasource": null,
+      "datasource": {
+        "type": "prometheus",
+        "uid": "$datasource"
+      },
       "description": "Number of requests per maximum number of cookies, headers, args.\nShows anomaly for requests with abnormal number cookies, headers, args. ",
       "fieldConfig": {
         "defaults": {
@@ -2658,7 +2758,8 @@
             "hideFrom": {
               "graph": false,
               "legend": false,
-              "tooltip": false
+              "tooltip": false,
+              "viz": false
             },
             "lineInterpolation": "smooth",
             "lineStyle": {
@@ -2670,7 +2771,14 @@
               "type": "linear"
             },
             "showPoints": "never",
-            "spanNulls": true
+            "spanNulls": true,
+            "stacking": {
+              "group": "A",
+              "mode": "normal"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
           },
           "mappings": [],
           "thresholds": {
@@ -2691,10 +2799,10 @@
         "overrides": []
       },
       "gridPos": {
-        "h": 12,
-        "w": 12,
-        "x": 12,
-        "y": 112
+        "h": 7,
+        "w": 24,
+        "x": 0,
+        "y": 90
       },
       "id": 40,
       "options": {
@@ -2704,17 +2812,24 @@
             "sum"
           ],
           "displayMode": "table",
-          "placement": "bottom"
+          "placement": "bottom",
+          "sortBy": "Total",
+          "sortDesc": true
         },
-        "tooltipOptions": {
-          "mode": "single"
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
         }
       },
       "pluginVersion": "7.5.17",
       "targets": [
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
           "exemplar": true,
-          "expr": "round(sum by (group) (irate(top_max_args_per_request[10s]))) ",
+          "expr": "round(sum by (group) (increase(top_max_args_per_request[5m]))) ",
           "format": "time_series",
           "instant": false,
           "interval": "",
@@ -2722,42 +2837,68 @@
           "refId": "top_secpolentryid_passed_total"
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
           "exemplar": true,
-          "expr": "round(sum by (group) (irate(top_max_cookies_per_request[10s]))) ",
+          "expr": "round(sum by (group) (increase(top_max_cookies_per_request[5m]))) ",
           "hide": false,
           "interval": "",
           "legendFormat": "cookies:{{group}}",
           "refId": "A"
         },
         {
+          "datasource": {
+            "type": "prometheus",
+            "uid": "$datasource"
+          },
           "exemplar": true,
-          "expr": "round(sum by (group) (irate(top_max_headers_per_request[10s]))) ",
+          "expr": "round(sum by (group) (increase(top_max_headers_per_request[5m]))) ",
           "hide": false,
           "interval": "",
           "legendFormat": "headers:{{group}}",
           "refId": "B"
         }
       ],
-      "timeFrom": null,
-      "timeShift": null,
       "title": "Maximum Arguments, Cookies, Headers ",
       "type": "timeseries"
     }
   ],
   "refresh": false,
-  "schemaVersion": 27,
+  "schemaVersion": 36,
   "style": "dark",
   "tags": [],
   "templating": {
-    "list": []
+    "list": [
+      {
+        "current": {
+          "selected": false,
+          "text": "dataplaneprometheus",
+          "value": "dataplaneprometheus"
+        },
+        "hide": 0,
+        "includeAll": false,
+        "multi": false,
+        "name": "datasource",
+        "options": [],
+        "query": "prometheus",
+        "queryValue": "",
+        "refresh": 1,
+        "regex": "",
+        "skipUrlSync": false,
+        "type": "datasource"
+      }
+    ]
   },
   "time": {
-    "from": "now-30m",
+    "from": "now-5m",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "",
-  "title": "Reblaze 5.0 Threats Overview",
-  "uid": "8KP9HSH4z",
-  "version": 1
+  "title": "Reblaze Threats Overview [v5]",
+  "uid": "8KP9HSH4r",
+  "version": 5,
+  "weekStart": ""
 }

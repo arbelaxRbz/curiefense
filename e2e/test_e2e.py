@@ -216,6 +216,8 @@ def test_raw_request(raw_request: Any, requester: RequestHelper):
     req = raw_request
     if "human" in req and req["human"]:
         pytest.skip("Ignoring because of humanity test")
+    if "plugins" in req:
+        pytest.skip("Ignoring because of plugin test")
     res = requester.run(req)
     response = req["response"]
     if "block_mode" in response and response["block_mode"]:

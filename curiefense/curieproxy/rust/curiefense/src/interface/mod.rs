@@ -171,17 +171,21 @@ pub fn jsonlog_rinfo(
     let mut ser = serde_json::Serializer::new(&mut outbuffer);
     let mut map_ser = ser.serialize_map(None)?;
     map_ser.serialize_entry("timestamp", now)?;
-    map_ser.serialize_entry("@timestamp", now)?;
     map_ser.serialize_entry("curiesession", &rinfo.session)?;
     map_ser.serialize_entry("curiesession_ids", &NameValue::new(&rinfo.session_ids))?;
     let request_id = proxy.get("request_id").or(rinfo.rinfo.meta.requestid.as_ref());
     map_ser.serialize_entry("request_id", &request_id)?;
     map_ser.serialize_entry("arguments", &rinfo.rinfo.qinfo.args)?;
-    map_ser.serialize_entry("path", &rinfo.rinfo.qinfo.qpath)?;
+    // TODO BQ
+    // map_ser.serialize_entry("path", &rinfo.rinfo.qinfo.qpath)?;
     map_ser.serialize_entry("path_parts", &rinfo.rinfo.qinfo.path_as_map)?;
     map_ser.serialize_entry("authority", &rinfo.rinfo.host)?;
     map_ser.serialize_entry("cookies", &rinfo.cookies)?;
     map_ser.serialize_entry("headers", &rinfo.headers)?;
+    if !rinfo.plugins.is_empty() {
+        // TODO BQ
+        // map_ser.serialize_entry("plugins", &rinfo.plugins)?;
+    }
     map_ser.serialize_entry("uri", &rinfo.rinfo.meta.path)?;
     map_ser.serialize_entry("ip", &rinfo.rinfo.geoip.ip)?;
     map_ser.serialize_entry("method", &rinfo.rinfo.meta.method)?;
@@ -298,7 +302,7 @@ pub fn jsonlog_rinfo(
             };
             let (acl, acl_active) = stats_counter(InitiatorKind::Acl);
             let (global_filters, global_filters_active) = stats_counter(InitiatorKind::GlobalFilter);
-            let (rate_limit, rate_limit_active) = stats_counter(InitiatorKind::GlobalFilter);
+            let (rate_limit, rate_limit_active) = stats_counter(InitiatorKind::RateLimit);
             let (content_filters, content_filters_active) = stats_counter(InitiatorKind::ContentFilter);
 
             let mut mp = serializer.serialize_map(None)?;
@@ -528,14 +532,14 @@ impl SimpleAction {
         tags: &mut Tags,
         reason: Vec<BlockReason>,
     ) -> Decision {
+        for t in self.extra_tags.iter().flat_map(|s| s.iter()) {
+            tags.insert(t, Location::Request);
+        }
         if self.atype == SimpleActionT::Skip {
             return Decision {
                 maction: None,
                 reasons: reason,
             };
-        }
-        for t in self.extra_tags.iter().flat_map(|s| s.iter()) {
-            tags.insert(t, Location::Request);
         }
         let action = match self.to_action(rinfo, tags, is_human) {
             None => match (mgh, rinfo.headers.get("user-agent")) {

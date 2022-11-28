@@ -7,7 +7,7 @@ use crate::logs::Logs;
 
 use hyperscan::prelude::{pattern, Builder, CompileFlags, Pattern, Patterns, VectoredDatabase};
 use hyperscan::Vectored;
-use regex::Regex;
+use regex::{Regex, RegexBuilder};
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 use std::iter::FromIterator;
@@ -18,6 +18,7 @@ pub struct Section<A> {
     pub cookies: A,
     pub args: A,
     pub path: A,
+    pub plugins: A,
 }
 
 #[derive(Debug, Clone)]
@@ -79,6 +80,12 @@ impl ContentFilterProfile {
                     names: HashMap::new(),
                     regex: Vec::new(),
                 },
+                plugins: ContentFilterSection {
+                    max_count: usize::MAX,
+                    max_length: usize::MAX,
+                    names: HashMap::new(),
+                    regex: Vec::new(),
+                },
             },
             decoding: vec![Transformation::Base64Decode, Transformation::UrlDecode],
             masking_seed: seed.as_bytes().to_vec(),
@@ -119,7 +126,23 @@ pub enum SectionIdx {
     Cookies,
     Args,
     Path,
+    Plugins,
 }
+
+pub const ALL_SECTION_IDX: [SectionIdx; 5] = [
+    SectionIdx::Headers,
+    SectionIdx::Cookies,
+    SectionIdx::Args,
+    SectionIdx::Path,
+    SectionIdx::Plugins,
+];
+
+pub const ALL_SECTION_IDX_NO_PLUGINS: [SectionIdx; 4] = [
+    SectionIdx::Headers,
+    SectionIdx::Cookies,
+    SectionIdx::Args,
+    SectionIdx::Path,
+];
 
 impl<A> Section<A> {
     pub fn get(&self, idx: SectionIdx) -> &A {
@@ -128,6 +151,7 @@ impl<A> Section<A> {
             SectionIdx::Cookies => &self.cookies,
             SectionIdx::Args => &self.args,
             SectionIdx::Path => &self.path,
+            SectionIdx::Plugins => &self.plugins,
         }
     }
 
@@ -137,6 +161,7 @@ impl<A> Section<A> {
             SectionIdx::Cookies => &mut self.cookies,
             SectionIdx::Args => &mut self.args,
             SectionIdx::Path => &mut self.path,
+            SectionIdx::Plugins => &mut self.plugins,
         }
     }
 }
@@ -151,6 +176,7 @@ where
             cookies: Default::default(),
             args: Default::default(),
             path: Default::default(),
+            plugins: Default::default(),
         }
     }
 }
@@ -178,7 +204,10 @@ const fn nonzero(value: usize) -> usize {
     }
 }
 
-fn mk_entry_match(em: RawContentFilterEntryMatch) -> anyhow::Result<(String, ContentFilterEntryMatch)> {
+fn mk_entry_match(
+    em: RawContentFilterEntryMatch,
+    lowercase_key: bool,
+) -> anyhow::Result<(String, ContentFilterEntryMatch)> {
     let reg = match em.reg {
         None => None,
         Some(s) => {
@@ -191,7 +220,11 @@ fn mk_entry_match(em: RawContentFilterEntryMatch) -> anyhow::Result<(String, Con
     };
 
     Ok((
-        em.key,
+        if lowercase_key {
+            em.key.to_ascii_lowercase()
+        } else {
+            em.key
+        },
         ContentFilterEntryMatch {
             restrict: em.restrict,
             mask: em.mask.unwrap_or(false),
@@ -204,6 +237,7 @@ fn mk_entry_match(em: RawContentFilterEntryMatch) -> anyhow::Result<(String, Con
 fn mk_section(
     allsections: &RawContentFilterProperties,
     props: RawContentFilterProperties,
+    lowercase_key: bool,
 ) -> anyhow::Result<ContentFilterSection> {
     // allsections entries are iterated first, so that they are replaced by entries in prop in case of colision
     // however, max_count and max_length in allsections are ignored
@@ -212,7 +246,7 @@ fn mk_section(
         .iter()
         .cloned()
         .chain(props.names.into_iter())
-        .map(mk_entry_match)
+        .map(|em| mk_entry_match(em, lowercase_key))
         .collect();
     let mregex: anyhow::Result<Vec<(Regex, ContentFilterEntryMatch)>> = allsections
         .regex
@@ -220,8 +254,8 @@ fn mk_section(
         .cloned()
         .chain(props.regex.into_iter())
         .map(|e| {
-            let (s, v) = mk_entry_match(e)?;
-            let re = Regex::new(&s)?;
+            let (s, v) = mk_entry_match(e, lowercase_key)?;
+            let re = RegexBuilder::new(&s).case_insensitive(true).build()?;
             Ok((re, v))
         })
         .collect();
@@ -274,10 +308,11 @@ fn convert_entry(
             name: entry.name,
             ignore_alphanum: entry.ignore_alphanum,
             sections: Section {
-                headers: mk_section(&entry.allsections, entry.headers)?,
-                cookies: mk_section(&entry.allsections, entry.cookies)?,
-                args: mk_section(&entry.allsections, entry.args)?,
-                path: mk_section(&entry.allsections, entry.path)?,
+                headers: mk_section(&entry.allsections, entry.headers, true)?,
+                cookies: mk_section(&entry.allsections, entry.cookies, false)?,
+                args: mk_section(&entry.allsections, entry.args, false)?,
+                path: mk_section(&entry.allsections, entry.path, false)?,
+                plugins: mk_section(&entry.allsections, entry.plugins, false)?,
             },
             decoding,
             masking_seed: entry.masking_seed.as_bytes().to_vec(),

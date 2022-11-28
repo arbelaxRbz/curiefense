@@ -44,6 +44,7 @@ pub struct IData {
     ipinfo: IPInfo,
     stats: StatsCollect<BStageSecpol>,
     container_name: Option<String>,
+    plugins: HashMap<String, String>,
 }
 
 impl IData {
@@ -76,6 +77,7 @@ pub fn inspect_init(
     ipinfo: IPInfo,
     start: Option<DateTime<Utc>>,
     selected_secpol: Option<&str>,
+    plugins: HashMap<String, String>,
 ) -> Result<IData, String> {
     let mut logs = Logs::new(loglevel);
     let mr = match_securitypolicy(
@@ -100,6 +102,7 @@ pub fn inspect_init(
                 ipinfo,
                 stats,
                 container_name: config.container_name.clone(),
+                plugins,
             })
         }
     }
@@ -123,6 +126,7 @@ fn early_block(idata: IData, action: Action, br: BlockReason) -> (Logs, AnalyzeR
         idata.container_name,
         &rawrequest,
         Some(idata.start),
+        idata.plugins,
     );
     (
         logs,
@@ -235,6 +239,7 @@ pub async fn finalize<GH: Grasshopper>(
         idata.container_name,
         &rawrequest,
         Some(idata.start),
+        idata.plugins,
     );
 
     let precision_level = challenge_verified(gh, &reqinfo, &mut logss);//new, replacing what's below
@@ -332,6 +337,7 @@ mod test {
             IPInfo::Ip("1.2.3.4".to_string()),
             None,
             None,
+            HashMap::new(),
         )
         .unwrap()
     }

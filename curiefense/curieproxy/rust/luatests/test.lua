@@ -126,14 +126,16 @@ local function run_inspect_request_gen(raw_request_map, mode)
     local res
     if human ~= nil then
       res = curiefense.test_inspect_request({loglevel="debug", meta=meta,
-              headers=headers, body=raw_request_map.body, ip=ip, human=human})
+              headers=headers, body=raw_request_map.body, ip=ip, human=human,
+              plugins=raw_request_map.plugins})
     else
       if mode ~= "lua_async" then
         res = curiefense.inspect_request({loglevel="debug", meta=meta, headers=headers,
-                body=raw_request_map.body, ip=ip})
+                body=raw_request_map.body, ip=ip, plugins=raw_request_map.plugins})
       else
         local r1 = curiefense.inspect_request_init({loglevel="debug", meta=meta,
-                    headers=headers, body=raw_request_map.body, ip=ip})
+                    headers=headers, body=raw_request_map.body, ip=ip,
+                    plugins=raw_request_map.plugins})
         if r1.error then
           error(r1.error)
         end

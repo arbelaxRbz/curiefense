@@ -36,6 +36,7 @@ struct LuaArgs<'l> {
     secpolid: Option<String>,
     humanity: Option<bool>,
     configpath: String,
+    plugins: HashMap<String, String>,
 }
 
 /// Lua function arguments:
@@ -57,6 +58,9 @@ fn lua_convert_args<'l>(lua: &'l Lua, args: LuaTable<'l>) -> Result<LuaArgs<'l>,
     let vlua_body = args.get("body").map_err(|_| "Missing body argument".to_string())?;
     let vstr_ip = args.get("ip").map_err(|_| "Missing ip argument".to_string())?;
     let vhops = args.get("hops").map_err(|_| "Missing hops argument".to_string())?;
+    let vplugins = args
+        .get("plugins")
+        .map_err(|_| "Missing plugins argument".to_string())?;
     let vsecpolid = args
         .get("secpolid")
         .map_err(|_| "Missing log level argument".to_string())?;
@@ -108,6 +112,10 @@ fn lua_convert_args<'l>(lua: &'l Lua, args: LuaTable<'l>) -> Result<LuaArgs<'l>,
         Err(rr) => return Err(format!("Could not convert the config path argument: {}", rr)),
         Ok(p) => p,
     };
+    let mplugins: Option<HashMap<String, HashMap<String, String>>> = match FromLua::from_lua(vplugins, lua) {
+        Err(rr) => return Err(format!("Could not convert the plugins argument: {}", rr)),
+        Ok(p) => p,
+    };
     Ok(LuaArgs {
         meta,
         headers,
@@ -117,6 +125,15 @@ fn lua_convert_args<'l>(lua: &'l Lua, args: LuaTable<'l>) -> Result<LuaArgs<'l>,
         secpolid,
         humanity,
         configpath: configpath.unwrap_or_else(|| "/cf-config/current/config".to_string()),
+        plugins: mplugins
+            .unwrap_or_default()
+            .into_iter()
+            .flat_map(|(plugin_name, values)| {
+                values
+                    .into_iter()
+                    .map(move |(k, v)| (format!("{}.{}", &plugin_name, k), v))
+            })
+            .collect(),
     })
 }
 
@@ -133,6 +150,7 @@ fn lua_inspect_request(lua: &Lua, args: LuaTable) -> LuaResult<LuaInspectionResu
                 lua_args.str_ip,
                 Some(grasshopper),
                 lua_args.secpolid,
+                lua_args.plugins,
             );
             Ok(LuaInspectionResult(res))
         }
@@ -156,6 +174,7 @@ fn lua_inspect_init(lua: &Lua, args: LuaTable) -> LuaResult<LInitResult> {
                 lua_args.str_ip,
                 Some(grasshopper),
                 lua_args.secpolid,
+                lua_args.plugins,
             );
             Ok(match res {
                 Ok((r, logs)) => match r {
@@ -242,6 +261,7 @@ fn lua_test_inspect_request(lua: &Lua, args: LuaTable) -> LuaResult<LuaInspectio
                 lua_args.str_ip,
                 Some(&gh),
                 lua_args.secpolid,
+                lua_args.plugins,
             );
             Ok(LuaInspectionResult(res))
         }
@@ -250,6 +270,7 @@ fn lua_test_inspect_request(lua: &Lua, args: LuaTable) -> LuaResult<LuaInspectio
 }
 
 /// Rust-native inspection top level function
+#[allow(clippy::too_many_arguments)]
 fn inspect_request<GH: Grasshopper>(
     configpath: &str,
     meta: HashMap<String, String>,
@@ -258,6 +279,7 @@ fn inspect_request<GH: Grasshopper>(
     ip: String,
     grasshopper: Option<&GH>,
     selected_secpol: Option<String>,
+    plugins: HashMap<String, String>,
 ) -> Result<InspectionResult, String> {
     let mut logs = Logs::default();
     logs.debug("Inspection init");
@@ -269,7 +291,14 @@ fn inspect_request<GH: Grasshopper>(
         headers,
         mbody,
     };
-    let dec = inspect_generic_request_map(configpath, grasshopper, raw, &mut logs, selected_secpol.as_deref());
+    let dec = inspect_generic_request_map(
+        configpath,
+        grasshopper,
+        raw,
+        &mut logs,
+        selected_secpol.as_deref(),
+        plugins,
+    );
 
     Ok(InspectionResult::from_analyze(logs, dec))
 }
@@ -284,6 +313,7 @@ fn inspect_init<GH: Grasshopper>(
     ip: String,
     grasshopper: Option<&GH>,
     selected_secpol: Option<String>,
+    plugins: HashMap<String, String>,
 ) -> Result<(InitResult, Logs), String> {
     let mut logs = Logs::new(loglevel);
     logs.debug("Inspection init");
@@ -296,8 +326,14 @@ fn inspect_init<GH: Grasshopper>(
         mbody,
     };
 
-    let p0 = match inspect_generic_request_map_init(configpath, grasshopper, raw, &mut logs, selected_secpol.as_deref())
-    {
+    let p0 = match inspect_generic_request_map_init(
+        configpath,
+        grasshopper,
+        raw,
+        &mut logs,
+        selected_secpol.as_deref(),
+        plugins,
+    ) {
         Err(res) => return Ok((InitResult::Res(res), logs)),
         Ok(p0) => p0,
     };

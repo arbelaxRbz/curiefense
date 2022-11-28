@@ -72,5 +72,21 @@
     "id": "ba-acl",
     "name": "ba-acl",
     "passthrough": []
+  },
+  {
+    "action": "b403",
+    "tags": [],
+    "allow": [],
+    "allow_bot": [],
+    "deny": [
+      "all"
+    ],
+    "deny_bot": [],
+    "force_deny": [],
+    "id": "jwt-acl",
+    "name": "jwt acl test",
+    "passthrough": [
+      "jwtemail"
+    ]
   }
 ]

@@ -240,7 +240,7 @@ pub async fn inspect_wrapper<GH: Grasshopper>(
     mgh: Option<&GH>,
 ) -> CFDecision {
     let mut mlogs = logs;
-    let result = inspect_generic_request_map_async(&configpath, mgh, raw, &mut mlogs, None).await;
+    let result = inspect_generic_request_map_async(&configpath, mgh, raw, &mut mlogs, None, HashMap::new()).await;
     CFDecision { result, logs: mlogs }
 }
 
@@ -475,7 +475,15 @@ pub unsafe extern "C" fn curiefense_stream_start(
         },
     };
     // create the requestinfo structure
-    let init_result = inspect_init(&iconfig.config, iconfig.loglevel, meta, IPInfo::Ip(ip), None, None);
+    let init_result = inspect_init(
+        &iconfig.config,
+        iconfig.loglevel,
+        meta,
+        IPInfo::Ip(ip),
+        None,
+        None,
+        HashMap::new(),
+    );
     Box::into_raw(Box::new(match init_result {
         Ok(inner) => {
             *success = CFStreamStatus::CFSMore;

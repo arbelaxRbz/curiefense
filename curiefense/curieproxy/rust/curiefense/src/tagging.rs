@@ -129,6 +129,9 @@ fn check_entry(rinfo: &RequestInfo, tags: &Tags, sub: &GlobalFilterEntry) -> Mat
         GlobalFilterEntryE::Header(hdr) => check_pair(hdr, &rinfo.headers, |h| {
             Location::HeaderValue(hdr.key.clone(), h.to_string())
         }),
+        GlobalFilterEntryE::Plugins(arg) => check_pair(arg, &rinfo.plugins, |a| {
+            Location::PluginValue(arg.key.clone(), a.to_string())
+        }),
         GlobalFilterEntryE::Args(arg) => check_pair(arg, &rinfo.rinfo.qinfo.args, |a| {
             Location::UriArgumentValue(arg.key.clone(), a.to_string())
         }),
@@ -285,6 +288,7 @@ pub fn tag_request(
                         psection.id.clone(),
                         psection.name.clone(),
                         a.atype.to_bdecision(),
+                        &mtch.matched,
                     )],
                 );
                 decision = stronger_decision(decision, curdec);
@@ -304,7 +308,7 @@ mod tests {
     use crate::utils::map_request;
     use crate::utils::RawRequest;
     use crate::utils::RequestMeta;
-    use regex::Regex;
+    use regex::RegexBuilder;
     use std::collections::HashMap;
     use std::sync::Arc;
 
@@ -348,6 +352,7 @@ mod tests {
                 mbody: None,
             },
             None,
+            HashMap::new(),
         )
     }
 
@@ -362,7 +367,7 @@ mod tests {
     fn single_re(input: &str) -> SingleEntry {
         SingleEntry {
             exact: input.to_string(),
-            re: Regex::new(input).ok(),
+            re: RegexBuilder::new(input).case_insensitive(true).build().ok(),
         }
     }
 
@@ -370,7 +375,7 @@ mod tests {
         PairEntry {
             key: key.to_string(),
             exact: input.to_string(),
-            re: Regex::new(input).ok(),
+            re: RegexBuilder::new(input).case_insensitive(true).build().ok(),
         }
     }
 

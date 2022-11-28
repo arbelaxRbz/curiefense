@@ -103,11 +103,14 @@ impl Initiator {
     ) -> Result<(), S::Error> {
         match self {
             Initiator::GlobalFilter { id, name } => {
-                map.serialize_entry("id", id)?;
-                map.serialize_entry("name", name)?;
+                map.serialize_entry("ruleid", id)?;
+                map.serialize_entry("type", &format!("name: {}", name))?; // BQ TODO
             }
             Initiator::Acl { tags, stage } => {
-                map.serialize_entry("tags", tags)?;
+                // map.serialize_entry("tags", tags)?;
+                // BQ TODO
+                let vtags = tags.join(", ");
+                map.serialize_entry("ruleid", &vtags)?; // BQ TODO
                 map.serialize_entry("type", stage)?;
             }
             Initiator::ContentFilter { ruleid, risk_level } => {
@@ -116,10 +119,12 @@ impl Initiator {
                 map.serialize_entry("risk_level", risk_level)?;
             }
             Initiator::Limit { id, name, threshold } => {
-                map.serialize_entry("id", id)?;
-                map.serialize_entry("name", name)?;
-                map.serialize_entry("threshold", threshold)?;
-                map.serialize_entry("counter", &(threshold + 1))?;
+                map.serialize_entry("ruleid", id)?;
+                map.serialize_entry("type", &format!("name: {}", name))?; // BQ TODO
+
+                // map.serialize_entry("threshold", threshold)?;
+                map.serialize_entry("risk_level", threshold)?;
+                // map.serialize_entry("counter", &(threshold + 1))?;
             }
             Initiator::BodyTooDeep { actual, expected } => {
                 map.serialize_entry("type", "body_too_deep")?;
@@ -134,7 +139,7 @@ impl Initiator {
             }
             Initiator::Phase01Fail(r) => {
                 map.serialize_entry("type", "phase1")?;
-                map.serialize_entry("details", r)?;
+                // map.serialize_entry("details", r)?; // BQ TODO
             }
             Initiator::Phase02 => {
                 map.serialize_entry("type", "phase2")?;
@@ -149,15 +154,17 @@ impl Initiator {
             Initiator::Restricted => {
                 map.serialize_entry("type", "restricted_content")?;
             }
-            Initiator::TooManyEntries { actual, expected } => {
+            Initiator::TooManyEntries { .. } => {
                 map.serialize_entry("type", "too_many_entries")?;
-                map.serialize_entry("actual", actual)?;
-                map.serialize_entry("expected", expected)?;
+                // BQ TODO
+                // map.serialize_entry("actual", actual)?;
+                // map.serialize_entry("expected", expected)?;
             }
-            Initiator::EntryTooLarge { actual, expected } => {
+            Initiator::EntryTooLarge { .. } => {
                 map.serialize_entry("type", "entry_too_large")?;
-                map.serialize_entry("actual", actual)?;
-                map.serialize_entry("expected", expected)?;
+                // BQ TODO
+                // map.serialize_entry("actual", actual)?;
+                // map.serialize_entry("expected", expected)?;
             }
         }
         Ok(())
@@ -249,8 +256,13 @@ impl BlockReason {
             .map(|r| r.to_string())
     }
 
-    pub fn global_filter(id: String, name: String, decision: BDecision) -> Self {
-        BlockReason::nodetails(Initiator::GlobalFilter { id, name }, decision)
+    pub fn global_filter(id: String, name: String, decision: BDecision, locs: &HashSet<Location>) -> Self {
+        let initiator = Initiator::GlobalFilter { id, name };
+        BlockReason {
+            decision,
+            initiator,
+            location: locs.clone(),
+        }
     }
 
     pub fn limit(id: String, name: String, threshold: u64, decision: BDecision) -> Self {

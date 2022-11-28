@@ -318,6 +318,7 @@ pub struct RequestInfo {
     pub rinfo: RInfo,
     pub session: String,
     pub session_ids: HashMap<String, String>,
+    pub plugins: RequestField,
 }
 
 impl RequestInfo {
@@ -403,7 +404,7 @@ impl InspectionResult {
 }
 
 pub fn find_geoip(logs: &mut Logs, ipstr: String) -> GeoIp {
-    let pip = ipstr.parse();
+    let pip = ipstr.trim().parse();
     let mut geoip = GeoIp {
         ipstr,
         ip: None,
@@ -521,6 +522,7 @@ pub fn map_request(
     container_name: Option<String>,
     raw: &RawRequest,
     ts: Option<DateTime<Utc>>,
+    plugins: HashMap<String, String>,
 ) -> RequestInfo {
     let host = raw.get_host();
 
@@ -563,6 +565,12 @@ pub fn map_request(
         container_name,
     };
 
+    let mut plugins_field = RequestField::new(&[]);
+    for (k, v) in plugins {
+        let l = Location::PluginValue(k.clone(), v.clone());
+        plugins_field.add(k, l, v);
+    }
+
     let dummy_reqinfo = RequestInfo {
         timestamp: ts.unwrap_or_else(Utc::now),
         cookies,
@@ -570,6 +578,7 @@ pub fn map_request(
         rinfo,
         session: String::new(),
         session_ids: HashMap::new(),
+        plugins: plugins_field,
     };
 
     let raw_session = (if secpolicy.session.is_empty() {
@@ -605,6 +614,7 @@ pub fn map_request(
         rinfo: dummy_reqinfo.rinfo,
         session,
         session_ids,
+        plugins: dummy_reqinfo.plugins,
     }
 }
 
@@ -623,6 +633,7 @@ pub fn selector<'a>(reqinfo: &'a RequestInfo, sel: &RequestSelector, tags: Optio
         RequestSelector::Args(k) => reqinfo.rinfo.qinfo.args.get(k).map(Selected::Str),
         RequestSelector::Header(k) => reqinfo.headers.get(k).map(Selected::Str),
         RequestSelector::Cookie(k) => reqinfo.cookies.get(k).map(Selected::Str),
+        RequestSelector::Plugins(k) => reqinfo.plugins.get(k).map(Selected::Str),
         RequestSelector::Ip => Some(&reqinfo.rinfo.geoip.ipstr).map(Selected::Str),
         RequestSelector::Network => reqinfo.rinfo.geoip.network.as_ref().map(Selected::Str),
         RequestSelector::Uri => Some(&reqinfo.rinfo.qinfo.uri).map(Selected::Str),
@@ -779,7 +790,7 @@ mod tests {
         let mut logs = Logs::new(crate::logs::LogLevel::Debug);
         let mut secpol = SecurityPolicy::empty();
         secpol.content_filter_profile.referer_as_uri = true;
-        let ri = map_request(&mut logs, Arc::new(secpol), None, &raw, None);
+        let ri = map_request(&mut logs, Arc::new(secpol), None, &raw, None, HashMap::new());
         let actual_args = ri.rinfo.qinfo.args;
         let actual_path = ri.rinfo.qinfo.path_as_map;
         let mut expected_args = RequestField::new(&[]);

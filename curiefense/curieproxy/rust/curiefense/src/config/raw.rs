@@ -59,7 +59,7 @@ impl Serialize for Repru64 {
 
 /// a mapping of the configuration file for security policy entries
 /// it is called "securitypolicy" in the lua code
-#[derive(Debug, Deserialize, Serialize, Clone)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct RawHostMap {
     #[serde(rename = "match")]
     pub match_: String,
@@ -75,7 +75,7 @@ pub struct RawHostMap {
 
 /// a mapping of the configuration file for security policies
 /// it is called "securitypolicy-entry" in the lua code
-#[derive(Debug, Deserialize, Serialize, Clone)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct RawSecurityPolicy {
     #[serde(rename = "match")]
     pub match_: String,
@@ -88,7 +88,7 @@ pub struct RawSecurityPolicy {
     pub limit_ids: Vec<String>,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Deserialize, Clone, Copy, PartialEq, Eq)]
 #[serde(rename_all = "UPPERCASE")]
 pub enum Relation {
     And,
@@ -96,7 +96,7 @@ pub enum Relation {
 }
 
 /// this is partial, as a ton of data is not needed
-#[derive(Debug, Deserialize, Serialize, Clone)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct RawGlobalFilterSection {
     pub id: String,
     pub name: String,
@@ -106,26 +106,27 @@ pub struct RawGlobalFilterSection {
     pub action: Option<String>,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone)]
+#[derive(Debug, Deserialize, Clone)]
 #[serde(untagged)]
 pub enum RawGlobalFilterRule {
     Rel(RawGlobalFilterRelation),
     Entry(RawGlobalFilterEntry),
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone)]
+#[derive(Debug, Deserialize, Clone)]
 pub struct RawGlobalFilterRelation {
     pub relation: Relation,
     pub entries: Vec<RawGlobalFilterRule>,
 }
 
-#[derive(Debug, Deserialize, Serialize, Clone, Copy)]
+#[derive(Debug, Deserialize, Clone, Copy)]
 #[serde(rename_all = "lowercase")]
 pub enum GlobalFilterEntryType {
     Args,
     Cookies,
     Headers,
     Path,
+    Plugins,
     Query,
     Uri,
     Asn,
@@ -142,7 +143,7 @@ pub enum GlobalFilterEntryType {
 }
 
 /// a special datatype for deserializing tuples with 2 elements, and optional extra elements
-#[derive(Debug, Serialize, Clone)]
+#[derive(Debug, Clone)]
 pub struct RawGlobalFilterEntry {
     pub tp: GlobalFilterEntryType,
     pub vl: serde_json::Value,
@@ -354,6 +355,8 @@ pub struct RawContentFilterProfile {
     pub args: RawContentFilterProperties,
     pub headers: RawContentFilterProperties,
     pub cookies: RawContentFilterProperties,
+    #[serde(default)]
+    pub plugins: RawContentFilterProperties,
     #[serde(default)]
     pub path: RawContentFilterProperties,
     #[serde(default)]

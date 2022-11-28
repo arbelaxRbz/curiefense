@@ -633,7 +633,7 @@
             [
               "headers",
               [
-                "include",
+                "Include",
                 "true"
               ],
               "annotation"
@@ -830,5 +830,39 @@
     "tags": [
       "flow-last-step"
     ]
+  },
+  {
+    "action": "monitor",
+    "active": true,
+    "description": "Check JWT email",
+    "id": "jwt-email",
+    "mdate": "2021-07-01T09:50:58.505Z",
+    "name": "jwt email",
+    "rule": [
+      "plugins",
+      [
+        "jwt.email",
+        "^.*@secure\\.domain$"
+      ],
+      "comment"
+    ],
+    "source": "self-managed",
+    "tags": [
+      "jwtemail"
+    ]
+  },
+  {
+    "id": "filter-header",
+    "name": "Filter header",
+    "description": "Filter a particual header value",
+    "tags": [],
+    "active": true,
+    "action": "ye8qyg0h",
+    "rule": {
+      "relation": "OR",
+      "entries": [["headers", ["test-global-filter-trigger", "true"], ""]]
+    },
+    "mdate": "",
+    "source": "self-managed"
   }
 ]

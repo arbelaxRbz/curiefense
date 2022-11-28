@@ -17,11 +17,9 @@
       "acl_triggers": [
         {
           "active": true,
-          "request_element": "uri",
+          "section": "uri",
           "value": "deny",
-          "tags": [
-            "deny"
-          ],
+          "ruleid": "deny",
           "name": "deny",
           "type": "deny"
         }
@@ -153,11 +151,9 @@
       "acl_triggers": [
         {
           "active": true,
-          "request_element": "uri",
+          "section": "uri",
           "value": "deny",
-          "tags": [
-            "deny"
-          ],
+          "ruleid": "deny",
           "name": "deny1",
           "type": "deny"
         }
@@ -373,11 +369,9 @@
       "acl_triggers": [
         {
           "active": true,
-          "request_element": "uri",
+          "section": "uri",
           "value": "deny",
-          "tags": [
-            "deny"
-          ],
+          "ruleid": "deny",
           "name": "deny",
           "type": "deny"
         }
@@ -422,11 +416,9 @@
       "acl_triggers": [
         {
           "active": true,
-          "request_element": "uri",
+          "section": "uri",
           "value": "deny",
-          "tags": [
-            "deny"
-          ],
+          "ruleid": "deny",
           "name": "deny1",
           "type": "deny"
         }

@@ -278,31 +278,39 @@ pub fn analyze_finish<GH: Grasshopper>(
             };
         }
 
-        if blocking {
-            let acl_block = |reasons: Vec<BlockReason>, tags: &mut Tags| {
-                secpol
-                    .acl_profile
-                    .action
-                    .to_decision(is_human, mgh, &reqinfo, tags, reasons)
+        let acl_block = |reasons: Vec<BlockReason>, tags: &mut Tags| {
+            secpol
+                .acl_profile
+                .action
+                .to_decision(is_human, mgh, &reqinfo, tags, reasons)
+        };
+
+        // Send challenge, even if the acl is inactive in sec_pol.
+        if decision.challenge {
+            let decision = match (reqinfo.headers.get("user-agent"), mgh) {
+                (Some(ua), Some(gh)) => challenge_phase01(gh, ua, brs),
+                (gua, ggh) => {
+                    logs.debug(|| {
+                        format!(
+                            "ACL challenge detected: can't challenge, ua={} gh={}",
+                            gua.is_some(),
+                            ggh.is_some()
+                        )
+                    });
+                    acl_block(brs, &mut tags)
+                }
             };
 
-            let decision = if decision.challenge {
-                match (reqinfo.headers.get("user-agent"), mgh) {
-                    (Some(ua), Some(gh)) => challenge_phase01(gh, ua, brs),
-                    (gua, ggh) => {
-                        logs.debug(|| {
-                            format!(
-                                "ACL challenge detected: can't challenge, ua={} gh={}",
-                                gua.is_some(),
-                                ggh.is_some()
-                            )
-                        });
-                        acl_block(brs, &mut tags)
-                    }
-                }
-            } else {
-                acl_block(brs, &mut tags)
+            return AnalyzeResult {
+                decision,
+                tags,
+                rinfo: masking(reqinfo),
+                stats: stats.acl_stage_build(),
             };
+        }
+
+        if blocking {
+            let decision = acl_block(brs, &mut tags);
             return AnalyzeResult {
                 decision,
                 tags,

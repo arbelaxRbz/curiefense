@@ -1,7 +1,7 @@
 use anyhow::Context;
 use ipnet::{IpNet, Ipv4Net, Ipv6Net};
 use iprange::IpRange;
-use regex::Regex;
+use regex::{Regex, RegexBuilder};
 use serde_json::{from_value, Value};
 use std::collections::HashMap;
 use std::net::IpAddr;
@@ -59,6 +59,7 @@ pub enum GlobalFilterEntryE {
     Args(PairEntry),
     Cookies(PairEntry),
     Header(PairEntry),
+    Plugins(PairEntry),
 
     // ip/iprange
     Ip(IpAddr),
@@ -236,7 +237,7 @@ impl GlobalFilterSection {
                 |s| {
                     Ok(conv(SingleEntry {
                         exact: s.to_string(),
-                        re: match Regex::new(s) {
+                        re: match RegexBuilder::new(s).case_insensitive(true).build() {
                             Ok(r) => Some(r),
                             Err(rr) => {
                                 logs.error(|| format!("Bad regex {}: {}", s, rr));
@@ -250,20 +251,21 @@ impl GlobalFilterSection {
         }
 
         /// build a global filter entry for "pair" conditions
-        fn pair<F>(logs: &mut Logs, conv: F, val: Value) -> anyhow::Result<GlobalFilterEntry>
+        fn pair<F>(logs: &mut Logs, conv: F, val: Value, lowercase_key: bool) -> anyhow::Result<GlobalFilterEntry>
         where
             F: FnOnce(PairEntry) -> GlobalFilterEntryE,
         {
-            let (k, v): (String, String) = match from_value::<(String, String, Value)>(val.clone()) {
+            let (uk, v): (String, String) = match from_value::<(String, String, Value)>(val.clone()) {
                 Err(_) => from_value(val)?,
                 Ok((k, v, _)) => (k, v),
             };
+            let k = if lowercase_key { uk.to_ascii_lowercase() } else { uk };
             Ok(match &v.strip_prefix('!') {
                 None => GlobalFilterEntry {
                     negated: false,
                     entry: conv(PairEntry {
                         key: k,
-                        re: match Regex::new(&v) {
+                        re: match RegexBuilder::new(&v).case_insensitive(true).build() {
                             Ok(r) => Some(r),
                             Err(rr) => {
                                 logs.error(|| format!("Bad regex {}: {}", v, rr));
@@ -277,7 +279,7 @@ impl GlobalFilterSection {
                     negated: true,
                     entry: conv(PairEntry {
                         key: k,
-                        re: match Regex::new(nval) {
+                        re: match RegexBuilder::new(nval).case_insensitive(true).build() {
                             Ok(r) => Some(r),
                             Err(rr) => {
                                 logs.error(|| format!("Bad regex {}: {}", nval, rr));
@@ -303,9 +305,10 @@ impl GlobalFilterSection {
                     },
                     val,
                 ),
-                GlobalFilterEntryType::Args => pair(logs, GlobalFilterEntryE::Args, val),
-                GlobalFilterEntryType::Cookies => pair(logs, GlobalFilterEntryE::Cookies, val),
-                GlobalFilterEntryType::Headers => pair(logs, GlobalFilterEntryE::Header, val),
+                GlobalFilterEntryType::Args => pair(logs, GlobalFilterEntryE::Args, val, false),
+                GlobalFilterEntryType::Cookies => pair(logs, GlobalFilterEntryE::Cookies, val, false),
+                GlobalFilterEntryType::Headers => pair(logs, GlobalFilterEntryE::Header, val, true),
+                GlobalFilterEntryType::Plugins => pair(logs, GlobalFilterEntryE::Plugins, val, false),
                 GlobalFilterEntryType::Path => single_re(logs, GlobalFilterEntryE::Path, val),
                 GlobalFilterEntryType::Query => single_re(logs, GlobalFilterEntryE::Query, val),
                 GlobalFilterEntryType::Uri => single_re(logs, GlobalFilterEntryE::Uri, val),

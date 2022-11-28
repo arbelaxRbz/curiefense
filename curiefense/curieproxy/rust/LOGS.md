@@ -95,7 +95,7 @@ The `active` key is also always present, and is `false` for decisions that did t
 The following entries are all optional:
 
  * `request_element`, can be `ip`, `uri`, `referer_path`
- * `section`, can be `attributes`, `path`, `body`, `headers` or `body`;
+ * `section`, can be `attributes`, `path`, `body`, `headers`, `body` or `plugins`;
  * `part`, indicate a "path part". Path parts are elements separated by slashes;
  * `name`, name of the argument, header or cookie that triggered the response;
  * `value`, actual value that triggered the response.

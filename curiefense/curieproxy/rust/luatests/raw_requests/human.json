@@ -16,11 +16,9 @@
       "acl_triggers": [
         {
           "active": true,
-          "request_element": "uri",
+          "section": "uri",
           "value": "denybot",
-          "tags": [
-            "denybot"
-          ],
+          "ruleid": "denybot",
           "name": "denybot",
           "type": "deny_bot"
         }
@@ -66,11 +64,9 @@
       "acl_triggers": [
         {
           "active": true,
-          "request_element": "uri",
+          "section": "uri",
           "value": "deny",
-          "tags": [
-            "deny"
-          ],
+          "ruleid": "deny",
           "name": "deny",
           "type": "deny"
         }

@@ -271,7 +271,7 @@
         "args": {},
         "cookies": {},
         "headers": {
-          "host": "www.collision.com"
+          "Host": "www.collision.com"
         },
         "method": "GET",
         "uri": "/flow-test/step1"
@@ -280,7 +280,7 @@
         "args": {},
         "cookies": {},
         "headers": {
-          "host": "www.collision.com"
+          "Host": "www.collision.com"
         },
         "method": "GET",
         "uri": "/flow-test/step2"

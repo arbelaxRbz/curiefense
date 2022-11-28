@@ -19,6 +19,7 @@
                 "cookies": { "type": "string" },
                 "args": { "type": "string" },
                 "arguments": { "type": "string" },
+                "plugins": { "type": "string" },
                 "attrs": {
                     "type": "string",
                      "enum": ["asn","authority","company","country","ip","method","network","path","query","region","secpolentryid","securitypolicyentryid","securitypolicyentry","secpolid","securitypolicyid","securitypolicy","session","subregion","tags","uri"]
@@ -107,6 +108,7 @@
                 "cookies": { "type": "string" },
                 "args": { "type": "string" },
                 "arguments": { "type": "string" },
+                "plugins": { "type": "string" },
                 "attrs": {
                     "type": "string",
                      "enum": ["asn","authority","company","country","ip","method","network","path","query","region","secpolentryid","securitypolicyentryid","securitypolicyentry","secpolid","securitypolicyid","securitypolicy","session","subregion","tags","uri"]
