@@ -7,9 +7,9 @@ use crate::interface::stats::{BStageMapped, BStageSecpol, StatsCollect};
 use crate::interface::{stronger_decision, BlockReason, Location, SimpleDecision, Tags};
 use crate::requestfields::RequestField;
 use crate::utils::RequestInfo;
+use crate::grasshopper::{PrecisionLevel};
 use std::collections::HashSet;
 use std::net::IpAddr;
-use grasshopper::{PrecisionLevel};
 
 struct MatchResult {
     matched: HashSet<Location>,
