@@ -6,7 +6,8 @@ use curiefense::analyze::APhase2;
 use curiefense::analyze::CfRulesArg;
 use curiefense::analyze::InitResult;
 use curiefense::grasshopper::DynGrasshopper;
-use curiefense::grasshopper::Grasshopper;
+// use curiefense::grasshopper::Grasshopper;
+use curiefense::grasshopper::{Grasshopper, PrecisionLevel};
 use curiefense::inspect_generic_request_map;
 use curiefense::inspect_generic_request_map_init;
 use curiefense::interface::aggregator::aggregated_values_block;
@@ -231,9 +232,15 @@ impl Grasshopper for DummyGrasshopper {
     fn js_bio(&self) -> Option<std::string::String> {
         None
     }
-    //todo change bool to precisionLevel
-    fn parse_rbzid(&self, _: &str, _: &str) -> Option<bool> {
-        Some(self.humanity)
+    //did we need to update this lib class as well?
+     fn js_interactive(&self) -> Option<std::string::String> {
+        None
+    }
+    fn js_active(&self) -> Option<std::string::String> {
+        None
+    }
+    fn parse_rbzid(&self, _rbzid: &str) -> PrecisionLevel {
+        PrecisionLevel::Invalid
     }
     fn gen_new_seed(&self, _: &str) -> Option<std::string::String> {
         None
