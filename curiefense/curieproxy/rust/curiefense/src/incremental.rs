@@ -10,6 +10,8 @@ use std::{collections::HashMap, sync::Arc};
 
 use chrono::{DateTime, Utc};
 
+use crate::PrecisionLevel::Invalid;
+
 use crate::{
     analyze::{analyze, APhase0, CfRulesArg},
     body::body_too_large,
@@ -242,15 +244,15 @@ pub async fn finalize<GH: Grasshopper>(
         idata.plugins,
     );
 
-    let precision_level = challenge_verified(gh, &reqinfo, &mut logss);//new, replacing what's below
+    // let precision_level = challenge_verified(gh, &reqinfo, &mut logs);//need gh, using below
     // // without grasshopper, default to being human
-    // let is_human = if let Some(gh) = mgh {
-    //     challenge_verified(gh, &reqinfo, &mut logs)
-    // } else {
-    //     false
-    // };
+    let precision_level = if let Some(gh) = mgh {
+        challenge_verified(gh, &reqinfo, &mut logs)
+    } else {
+        crate::PrecisionLevel::Invalid
+    };
     //converting the precision_level to is_human like before, for the return value
-    let is_human = precision_level != Invalid;
+    let is_human = precision_level != crate::PrecisionLevel::Invalid;
     let (mut tags, globalfilter_dec, stats) = tag_request(idata.stats, is_human, globalfilters, &reqinfo, &vtags);
     tags.insert("all", Location::Request);
 

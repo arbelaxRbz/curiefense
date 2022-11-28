@@ -183,7 +183,7 @@ pub fn tag_request(
 ) -> (Tags, SimpleDecision, StatsCollect<BStageMapped>) {
     let mut tags = Tags::new(vtags);
     //for each case - human+precision level / bot
-    if precision_level != Invalid {
+    if precision_level != crate::PrecisionLevel::Invalid {
         tags.insert("human", Location::Request);
     }
     else {
