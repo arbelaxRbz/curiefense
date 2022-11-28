@@ -190,13 +190,13 @@ pub fn tag_request(
         tags.insert("bot", Location::Request);
     };
     match precision_level {
-        Active | Passive => {
+        crate::PrecisionLevel::Active | crate::PrecisionLevel::Passive => {
             tags.insert("precision-l1", Location::Request);
         }
-        Interactive => {
+        crate::PrecisionLevel::Interactive => {
             tags.insert("precision-l3", Location::Request);
         }
-        MobileSdk => {
+        crate::PrecisionLevel::MobileSdk => {
             tags.insert("precision-l4", Location::Request);
         }
         _ => {}
