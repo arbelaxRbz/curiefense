@@ -55,7 +55,7 @@ pub unsafe fn inspect_async_step(ptr: *mut Executor<Task<(Decision, Tags, Logs)>
     match ptr.as_ref() {
         None => Progress::Error("Null ptr".to_string()),
         Some(r) => r.step(),
-    }F
+    }
 }
 
 /// # Safety
@@ -156,17 +156,15 @@ pub fn inspect_generic_request_map_init<GH: Grasshopper>(
                     let nflows = cfg.flows.clone();
 
                     // without grasshopper - is that an option..?
-                    let precision_level = challenge_verified(gh, &reqinfo, slogs);
-                    // todo this? or ^
-                    /*// without grasshopper, default to being human
+                    let precision_level = challenge_verified(gh, &reqinfo, slogs);////need gh, using below
                     let precision_level = if let Some(gh) = mgh {
-                        challenge_verified(gh, &reqinfo, slogs)
+                        challenge_verified(gh, &reqinfo, &mut logs)
                     } else {
-                        Invalid
-                    };*/
+                        crate::PrecisionLevel::Invalid
+                    };
 
                     //converting the precision_level to is_human like before, for the return value
-                    let is_human = precision_level != Invalid;
+                    let is_human = precision_level != crate::PrecisionLevel::Invalid;
                     let ntags = tag_request(stats, precision_level, &cfg.globalfilters, &reqinfo, &cfg.virtual_tags);
                     RequestMappingResult::Res((ntags, nflows, reqinfo, is_human))
                 }

@@ -10,8 +10,6 @@ use std::{collections::HashMap, sync::Arc};
 
 use chrono::{DateTime, Utc};
 
-use crate::PrecisionLevel::Invalid;
-
 use crate::{
     analyze::{analyze, APhase0, CfRulesArg},
     body::body_too_large,
