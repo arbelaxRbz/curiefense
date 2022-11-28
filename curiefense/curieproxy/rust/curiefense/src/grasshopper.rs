@@ -112,7 +112,7 @@ impl Grasshopper for DynGrasshopper {
 
     fn parse_rbzid(&self, rbzid: &str) -> PrecisionLevel {
         unsafe {
-            let c_rbzid = match CString::new(rbzid).ok() { Ok(x) => x, Err(_) => return Invalid };
+            let c_rbzid = match CString::new(rbzid) { Ok(x) => x, Err(_) => return PrecisionLevel::Invalid };
             imported::parse_rbzid(c_rbzid.as_ptr())
         }
     }
