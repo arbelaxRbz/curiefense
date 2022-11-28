@@ -28,6 +28,7 @@ pub trait Grasshopper {
 
 mod imported {
     use std::os::raw::c_char;
+    use crate::PrecisionLevel;
     extern "C" {
         pub fn verify_workproof(c_zebra: *const c_char, c_ua: *const c_char, success: *mut bool) -> *mut c_char;
         pub fn gen_new_seed(c_ua: *const c_char) -> *mut c_char;

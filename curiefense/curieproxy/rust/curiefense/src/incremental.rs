@@ -251,7 +251,7 @@ pub async fn finalize<GH: Grasshopper>(
     };
     //converting the precision_level to is_human like before, for the return value
     let is_human = precision_level != crate::PrecisionLevel::Invalid;
-    let (mut tags, globalfilter_dec, stats) = tag_request(idata.stats, is_human, globalfilters, &reqinfo, &vtags);
+    let (mut tags, globalfilter_dec, stats) = tag_request(idata.stats, precision_level, globalfilters, &reqinfo, &vtags);
     tags.insert("all", Location::Request);
 
     let dec = analyze(
