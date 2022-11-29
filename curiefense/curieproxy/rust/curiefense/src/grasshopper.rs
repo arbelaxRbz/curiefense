@@ -5,7 +5,7 @@ use std::collections::HashMap;
 use std::ffi::{CStr, CString};
 
 #[repr(u8)]
-#[derive(PartialEq)]
+#[derive(PartialEq, Copy, Clone)]
 pub enum PrecisionLevel {
     Active,
     Passive,

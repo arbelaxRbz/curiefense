@@ -119,7 +119,7 @@ local function run_inspect_request_gen(raw_request_map, mode)
     local human = nil
     if raw_request_map.human ~= nil then
       human = raw_request_map.human
-      if human then
+      if human ~= nil and human ~= "invalid" then
         headers["Cookie"] = "rbzid=OK;"
       end
     end
