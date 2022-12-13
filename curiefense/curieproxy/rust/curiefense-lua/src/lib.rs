@@ -55,7 +55,7 @@ struct LuaArgs<'l> {
 /// * hops, optional number. When set the IP is computed from the x-forwarded-for header, defaulting to the ip argument on failure
 /// * secpolid, optional string. When set, bypass hostname matching for security policy selection
 /// * configpath, path to the lua configuration files, defaults to /cf-config/current/config
-/// * humanity, optional boolean, only used for the test functions
+/// * humanity, PrecisionLevel, only used for the test functions
 fn lua_convert_args<'l>(lua: &'l Lua, args: LuaTable<'l>) -> Result<LuaArgs<'l>, String> {
     let vloglevel = args.get("loglevel").map_err(|_| "Missing log level".to_string())?;
     let vmeta = args.get("meta").map_err(|_| "Missing meta argument".to_string())?;

@@ -6,7 +6,7 @@ use crate::config::flow::FlowMap;
 use crate::config::HSDB;
 use crate::contentfilter::{content_filter_check, masking};
 use crate::flow::{flow_build_query, flow_info, flow_process, flow_resolve_query, FlowCheck, FlowResult};
-use crate::grasshopper::{challenge_phase01, challenge_phase02, Grasshopper, PrecisionLevel};
+use crate::grasshopper::{challenge_phase01, challenge_phase02, Grasshopper, PrecisionLevel, GHMode};
 use crate::interface::stats::{BStageMapped, StatsCollect};
 use crate::interface::{
     merge_decisions, AclStage, AnalyzeResult, BDecision, BlockReason, Decision, Location, SimpleDecision, Tags,
@@ -90,6 +90,21 @@ pub fn analyze_init<GH: Grasshopper>(logs: &mut Logs, mgh: Option<&GH>, p0: APha
         Location::Request,
     );
 
+    //if /c365 then call gh phase01 with mode passive
+    if reqinfo.rinfo.qinfo.uri.starts_with("/c3650cdf") {
+        if let Some(gh) = mgh {
+            let decision = challenge_phase01(gh, &reqinfo, Vec::new(), GHMode::Active);
+            return InitResult::Res(AnalyzeResult {
+                decision,
+                tags,
+                rinfo: masking(reqinfo),
+                stats: stats.mapped_stage_build(),
+            });
+        } else {
+            logs.debug("Passive challenge detected: can't challenge");
+        };
+    }
+
     if !securitypolicy.content_filter_profile.content_type.is_empty() {
         // note that having no body is perfectly OK
         if let BodyDecodingResult::DecodingFailed(rr) = &reqinfo.rinfo.qinfo.body_decoding {
@@ -115,15 +130,20 @@ pub fn analyze_init<GH: Grasshopper>(logs: &mut Logs, mgh: Option<&GH>, p0: APha
         }
     }
 
-    if let Some(decision) = mgh.and_then(|gh| challenge_phase02(gh, &reqinfo)) {
-        return InitResult::Res(AnalyzeResult {
-            decision,
-            tags,
-            rinfo: masking(reqinfo),
-            stats: stats.mapped_stage_build(),
-        });
+    //if /7060 then call gh phase02
+    if reqinfo.rinfo.qinfo.uri.starts_with("/7060ac19f50208cbb6b45328ef94140a612ee92387e015594234077b4d1e64f1/") {
+        if let Some(decision) = mgh.and_then(|gh| challenge_phase02(gh, &reqinfo)) {
+            return InitResult::Res(AnalyzeResult {
+                decision,
+                tags,
+                rinfo: masking(reqinfo),
+                stats: stats.mapped_stage_build(),
+            });
+        }
+        logs.debug("challenge phase2 ignored");
     }
-    logs.debug("challenge phase2 ignored");
+
+    //todo if /74d8 then call gh phase01 with mode sdk (TBD)
 
     let decision = if let SimpleDecision::Action(action, reason) = globalfilter_dec {
         logs.debug(|| format!("Global filter decision {:?}", reason));
@@ -290,7 +310,7 @@ pub fn analyze_finish<GH: Grasshopper>(
         // Send challenge, even if the acl is inactive in sec_pol.
         if decision.challenge {
             let decision = if let Some(gh) = mgh {
-                challenge_phase01(gh, &reqinfo, Vec::new(), precision_level)
+                challenge_phase01(gh, &reqinfo, Vec::new(), GHMode::Active)
             } else {
                 logs.debug("ACL challenge detected: can't challenge");
                 acl_block(&mut tags)

@@ -40,7 +40,7 @@ fn challenge_verified<GH: Grasshopper>(gh: &GH, reqinfo: &RequestInfo, logs: &mu
         headers: reqinfo.headers.as_map(),
         cookies: reqinfo.cookies.as_map(),
         ip: &reqinfo.rinfo.geoip.ipstr,
-        protocol: "TODO",
+        protocol: "TODO",//todo http/https
     }) {
         Ok(level) => level,
         Err(rr) => {
@@ -157,7 +157,7 @@ pub fn inspect_generic_request_map_init<GH: Grasshopper>(
 
                     let nflows = cfg.flows.clone();
 
-                    // without grasshopper, default to being human
+                    // without grasshopper, default to being not human
                     let precision_level = if let Some(gh) = mgh {
                         challenge_verified(gh, &reqinfo, slogs)
                     } else {

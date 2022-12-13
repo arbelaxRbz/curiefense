@@ -1,7 +1,7 @@
 /// this file contains all the data type that are used when interfacing with a proxy
 use crate::config::matchers::RequestSelector;
 use crate::config::raw::{RawAction, RawActionType};
-use crate::grasshopper::{challenge_phase01, Grasshopper, PrecisionLevel};
+use crate::grasshopper::{challenge_phase01, Grasshopper, PrecisionLevel, GHMode};
 use crate::logs::Logs;
 use crate::utils::json::NameValue;
 use crate::utils::templating::{parse_request_template, RequestTemplate, TVar, TemplatePart};
@@ -605,7 +605,7 @@ impl SimpleAction {
         }
         let action = match self.to_action(rinfo, tags, precision_level.is_human()) {
             None => match mgh {
-                Some(gh) => return challenge_phase01(gh, rinfo, reason, precision_level),
+                Some(gh) => return challenge_phase01(gh, rinfo, reason, GHMode::Interactive),
                 _ => Action::default(),
             },
             Some(a) => a,

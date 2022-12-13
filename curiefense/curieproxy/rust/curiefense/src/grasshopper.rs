@@ -178,13 +178,13 @@ pub fn challenge_phase01<GH: Grasshopper>(
     gh: &GH,
     rinfo: &RequestInfo,
     reasons: Vec<BlockReason>,
-    precision_level: PrecisionLevel,
+    mode: GHMode,
 ) -> Decision {
     let query = GHQuery {
         headers: rinfo.headers.as_map(),
         cookies: rinfo.cookies.as_map(),
         ip: &rinfo.rinfo.geoip.ipstr,
-        protocol: "TODO",
+        protocol: "TODO",//todo http/https
     };
     let gh_response = match gh.init_challenge(query, GHMode::Passive) {
         Ok(r) => r,
@@ -207,14 +207,18 @@ pub fn challenge_phase01<GH: Grasshopper>(
 }
 
 pub fn challenge_phase02<GH: Grasshopper>(gh: &GH, reqinfo: &RequestInfo) -> Option<Decision> {
-    None
-    /*
-    if !uri.starts_with("/7060ac19f50208cbb6b45328ef94140a612ee92387e015594234077b4d1e64f1/") {
+    if !reqinfo.rinfo.qinfo.uri.starts_with("/7060ac19f50208cbb6b45328ef94140a612ee92387e015594234077b4d1e64f1/") {
         return None;
     }
-    let ua = headers.get("user-agent")?;
-    let workproof = extract_zebra(headers)?;
-    let verified = gh.verify_workproof(&workproof, ua)?;
+
+    let verified = match gh.verify_challenge(&reqinfo.headers) {
+        Ok(r) => r,
+        Err(rr) => panic!(
+            "TODO: ? {}",
+            rr
+        ),
+    };
+
     let mut nheaders = HashMap::<String, String>::new();
     let mut cookie = "rbzid=".to_string();
     cookie += &verified.replace('=', "-");
@@ -233,5 +237,4 @@ pub fn challenge_phase02<GH: Grasshopper>(gh: &GH, reqinfo: &RequestInfo) -> Opt
         },
         vec![BlockReason::phase02()],
     ))
-    */
 }
