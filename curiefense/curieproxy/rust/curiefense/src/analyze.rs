@@ -93,7 +93,7 @@ pub fn analyze_init<GH: Grasshopper>(logs: &mut Logs, mgh: Option<&GH>, p0: APha
     //if /c365 then call gh phase01 with mode passive
     if reqinfo.rinfo.qinfo.uri.starts_with("/c3650cdf") {
         if let Some(gh) = mgh {
-            let decision = challenge_phase01(gh, &reqinfo, Vec::new(), GHMode::Active);
+            let decision = challenge_phase01(gh, &reqinfo, Vec::new(), GHMode::Passive);
             return InitResult::Res(AnalyzeResult {
                 decision,
                 tags,
