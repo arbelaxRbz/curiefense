@@ -278,6 +278,7 @@ pub struct RequestMeta {
     pub method: String,
     pub path: String,
     pub requestid: Option<String>,
+    pub protocol: Option<String>,
     /// this field only exists for gradual Lua interop
     /// TODO: remove when complete
     pub extra: HashMap<String, String>,
@@ -288,6 +289,7 @@ impl RequestMeta {
         let mut mattrs = attrs;
         let authority = mattrs.remove("authority");
         let requestid = mattrs.remove("x-request-id");
+        let protocol = mattrs.remove("protocol");
         let method = mattrs.remove("method").ok_or("missing method field")?;
         let path = mattrs.remove("path").ok_or("missing path field")?;
         Ok(RequestMeta {
@@ -296,6 +298,7 @@ impl RequestMeta {
             path,
             extra: mattrs,
             requestid,
+            protocol,
         })
     }
 }
@@ -782,6 +785,7 @@ mod tests {
                 method: "GET".to_string(),
                 path: "/this/is/the/path?arg1=x&arg2=y".to_string(),
                 requestid: None,
+                protocol: "https".to_string(),
                 extra: HashMap::new(),
             },
             mbody: None,

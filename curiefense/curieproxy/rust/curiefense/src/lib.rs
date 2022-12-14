@@ -40,7 +40,7 @@ fn challenge_verified<GH: Grasshopper>(gh: &GH, reqinfo: &RequestInfo, logs: &mu
         headers: reqinfo.headers.as_map(),
         cookies: reqinfo.cookies.as_map(),
         ip: &reqinfo.rinfo.geoip.ipstr,
-        protocol: "TODO",//todo http/https
+        protocol: &reqinfo.rinfo.meta.protocol.as_deref().unwrap_or("https"),
     }) {
         Ok(level) => level,
         Err(rr) => {

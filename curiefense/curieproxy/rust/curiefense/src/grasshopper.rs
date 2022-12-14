@@ -184,7 +184,7 @@ pub fn challenge_phase01<GH: Grasshopper>(
         headers: rinfo.headers.as_map(),
         cookies: rinfo.cookies.as_map(),
         ip: &rinfo.rinfo.geoip.ipstr,
-        protocol: "TODO",//todo http/https
+        protocol: &rinfo.rinfo.meta.protocol.as_deref().unwrap_or("https"),
     };
     let gh_response = match gh.init_challenge(query, GHMode::Passive) {
         Ok(r) => r,
