@@ -186,7 +186,7 @@ pub fn challenge_phase01<GH: Grasshopper>(
         ip: &rinfo.rinfo.geoip.ipstr,
         protocol: &rinfo.rinfo.meta.protocol.as_deref().unwrap_or("https"),
     };
-    let gh_response = match gh.init_challenge(query, GHMode::Passive) {
+    let gh_response = match gh.init_challenge(query, mode) {
         Ok(r) => r,
         Err(rr) => panic!(
             "TODO: should be block the user or allow when there was an error ? {}",
