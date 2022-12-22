@@ -243,7 +243,7 @@ impl Grasshopper for DummyGrasshopper {
         Ok(self.humanity)
     }
 
-    fn verify_challenge(&self, _headers: &RequestField) -> Result<String, String> {
+    fn verify_challenge(&self, _headers: HashMap<&str, &str>) -> Result<String, String> {
         if self.humanity == PrecisionLevel::Invalid {
             Err("Bad".to_string())
         } else {

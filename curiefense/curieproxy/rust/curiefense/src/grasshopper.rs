@@ -59,7 +59,7 @@ impl GHResponse {
 pub trait Grasshopper {
     fn is_human(&self, input: GHQuery) -> Result<PrecisionLevel, String>;
     fn init_challenge(&self, input: GHQuery, mode: GHMode) -> Result<GHResponse, String>;
-    fn verify_challenge(&self, headers: &RequestField) -> Result<String, String>;
+    fn verify_challenge(&self, headers: HashMap<&str, &str>) -> Result<String, String>;
 }
 
 mod imported {
@@ -81,7 +81,7 @@ pub struct DummyGrasshopper {}
 
 // use this when grasshopper can't be used
 impl Grasshopper for DummyGrasshopper {
-    fn verify_challenge(&self, _headers: &RequestField) -> Result<String, String> {
+    fn verify_challenge(&self, _headers: HashMap<&str, &str>) -> Result<String, String> {
         Err("not implemented".into())
     }
 
@@ -141,9 +141,9 @@ impl Grasshopper for DynGrasshopper {
         }
     }
 
-    fn verify_challenge(&self, headers: &RequestField) -> Result<String, String> {
+    fn verify_challenge(&self, headers: HashMap<&str, &str>) -> Result<String, String> {
         unsafe {
-            let encoded_headers = serde_json::to_vec(headers).map_err(|rr| rr.to_string())?;
+            let encoded_headers = serde_json::to_vec(&headers).map_err(|rr| rr.to_string())?;
             let c_headers =
                 CString::new(encoded_headers).map_err(|_| "null character in JSON encoded string?!?".to_string())?;
             let mut success = false;
@@ -211,7 +211,7 @@ pub fn challenge_phase02<GH: Grasshopper>(gh: &GH, reqinfo: &RequestInfo) -> Opt
         return None;
     }
 
-    let verified = match gh.verify_challenge(&reqinfo.headers) {
+    let verified = match gh.verify_challenge(reqinfo.headers.as_map()) {
         Ok(r) => r,
         Err(rr) => panic!(
             "TODO: ? {}",
