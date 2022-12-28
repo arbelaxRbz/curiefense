@@ -588,6 +588,7 @@ impl SimpleAction {
 
     pub fn to_decision<GH: Grasshopper>(
         &self,
+        logs: &mut Logs,
         precision_level: PrecisionLevel,
         mgh: Option<&GH>,
         rinfo: &RequestInfo,
@@ -605,7 +606,7 @@ impl SimpleAction {
         }
         let action = match self.to_action(rinfo, tags, precision_level.is_human()) {
             None => match mgh {
-                Some(gh) => return challenge_phase01(gh, rinfo, reason, GHMode::Interactive),
+                Some(gh) => return challenge_phase01(gh, logs, rinfo, reason, GHMode::Interactive),
                 _ => Action::default(),
             },
             Some(a) => a,

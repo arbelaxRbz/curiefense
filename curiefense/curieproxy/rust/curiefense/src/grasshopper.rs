@@ -6,6 +6,7 @@ use crate::utils::RequestInfo;
 use crate::{Action, ActionType, Decision};
 use std::collections::HashMap;
 use std::ffi::{CStr, CString};
+use crate::logs::Logs;
 
 #[repr(u8)]
 #[derive(Debug, Serialize, Deserialize, PartialEq, Eq, Clone, Copy)]
@@ -176,6 +177,7 @@ pub fn gh_fail_decision(reason: &str) -> Decision {
 
 pub fn challenge_phase01<GH: Grasshopper>(
     gh: &GH,
+    logs: &mut Logs,
     rinfo: &RequestInfo,
     reasons: Vec<BlockReason>,
     mode: GHMode,
@@ -188,10 +190,10 @@ pub fn challenge_phase01<GH: Grasshopper>(
     };
     let gh_response = match gh.init_challenge(query, mode) {
         Ok(r) => r,
-        Err(rr) => panic!(
-            "TODO: should be block the user or allow when there was an error ? {}",
-            rr
-        ),
+        Err(rr) => {
+            logs.error(|| format!("Challenge phase01 error {}", rr));
+            return gh_fail_decision(&rr);
+        },
     };
     Decision::action(
         Action {
@@ -206,17 +208,17 @@ pub fn challenge_phase01<GH: Grasshopper>(
     )
 }
 
-pub fn challenge_phase02<GH: Grasshopper>(gh: &GH, reqinfo: &RequestInfo) -> Option<Decision> {
+pub fn challenge_phase02<GH: Grasshopper>(gh: &GH, logs: &mut Logs, reqinfo: &RequestInfo) -> Option<Decision> {
     if !reqinfo.rinfo.qinfo.uri.starts_with("/7060ac19f50208cbb6b45328ef94140a612ee92387e015594234077b4d1e64f1/") {
         return None;
     }
 
     let verified = match gh.verify_challenge(reqinfo.headers.as_map()) {
         Ok(r) => r,
-        Err(rr) => panic!(
-            "TODO: ? {}",
-            rr
-        ),
+        Err(rr) => {
+            logs.error(|| format!("Challenge phase02 error {}", rr));
+            return None;
+        },
     };
 
     let mut nheaders = HashMap::<String, String>::new();

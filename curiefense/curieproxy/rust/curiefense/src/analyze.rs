@@ -93,7 +93,7 @@ pub fn analyze_init<GH: Grasshopper>(logs: &mut Logs, mgh: Option<&GH>, p0: APha
     //if /c365 then call gh phase01 with mode passive
     if reqinfo.rinfo.qinfo.uri.starts_with("/c3650cdf") {
         if let Some(gh) = mgh {
-            let decision = challenge_phase01(gh, &reqinfo, Vec::new(), GHMode::Passive);
+            let decision = challenge_phase01(gh, logs, &reqinfo, Vec::new(), GHMode::Passive);
             return InitResult::Res(AnalyzeResult {
                 decision,
                 tags,
@@ -111,6 +111,7 @@ pub fn analyze_init<GH: Grasshopper>(logs: &mut Logs, mgh: Option<&GH>, p0: APha
             let reason = BlockReason::body_malformed(rr);
             // we expect the body to be properly decoded
             let decision = securitypolicy.content_filter_profile.action.to_decision(
+                logs,
                 precision_level,
                 mgh,
                 &reqinfo,
@@ -132,7 +133,7 @@ pub fn analyze_init<GH: Grasshopper>(logs: &mut Logs, mgh: Option<&GH>, p0: APha
 
     //if /7060 then call gh phase02
     if reqinfo.rinfo.qinfo.uri.starts_with("/7060ac19f50208cbb6b45328ef94140a612ee92387e015594234077b4d1e64f1/") {
-        if let Some(decision) = mgh.and_then(|gh| challenge_phase02(gh, &reqinfo)) {
+        if let Some(decision) = mgh.and_then(|gh| challenge_phase02(gh, logs, &reqinfo)) {
             return InitResult::Res(AnalyzeResult {
                 decision,
                 tags,
@@ -147,7 +148,7 @@ pub fn analyze_init<GH: Grasshopper>(logs: &mut Logs, mgh: Option<&GH>, p0: APha
 
     let decision = if let SimpleDecision::Action(action, reason) = globalfilter_dec {
         logs.debug(|| format!("Global filter decision {:?}", reason));
-        let decision = action.to_decision(precision_level, mgh, &reqinfo, &mut tags, reason);
+        let decision = action.to_decision(logs, precision_level, mgh, &reqinfo, &mut tags, reason);
         if decision.is_final() {
             return InitResult::Res(AnalyzeResult {
                 decision,
@@ -249,7 +250,7 @@ pub fn analyze_finish<GH: Grasshopper>(
     let (limit_check, stats) = limit_process(stats, 0, &p2.limits, &mut tags);
 
     if let SimpleDecision::Action(action, curbrs) = limit_check {
-        let limit_decision = action.to_decision(precision_level, mgh, &reqinfo, &mut tags, curbrs);
+        let limit_decision = action.to_decision(logs, precision_level, mgh, &reqinfo, &mut tags, curbrs);
         cumulated_decision = merge_decisions(cumulated_decision, limit_decision);
         if cumulated_decision.is_final() {
             return AnalyzeResult {
@@ -300,20 +301,20 @@ pub fn analyze_finish<GH: Grasshopper>(
             };
         }
 
-        let acl_block = |tags: &mut Tags| {
+        let acl_block = |tags: &mut Tags, logs: &mut Logs| {
             secpol
                 .acl_profile
                 .action
-                .to_decision(precision_level, mgh, &reqinfo, tags, Vec::new())
+                .to_decision(logs, precision_level, mgh, &reqinfo, tags, Vec::new())
         };
 
         // Send challenge, even if the acl is inactive in sec_pol.
         if decision.challenge {
             let decision = if let Some(gh) = mgh {
-                challenge_phase01(gh, &reqinfo, Vec::new(), GHMode::Active)
+                challenge_phase01(gh, logs,  &reqinfo, Vec::new(), GHMode::Active)
             } else {
                 logs.debug("ACL challenge detected: can't challenge");
-                acl_block(&mut tags)
+                acl_block(&mut tags, logs)
             };
 
             cumulated_decision = merge_decisions(cumulated_decision, decision);
@@ -326,7 +327,7 @@ pub fn analyze_finish<GH: Grasshopper>(
         }
 
         if blocking {
-            let decision = acl_block(&mut tags);
+            let decision = acl_block(&mut tags, logs);
             cumulated_decision = merge_decisions(cumulated_decision, decision);
             return AnalyzeResult {
                 decision: cumulated_decision,
@@ -382,7 +383,7 @@ pub fn analyze_finish<GH: Grasshopper>(
                     secpol
                         .content_filter_profile
                         .action
-                        .to_decision(precision_level, mgh, &reqinfo, &mut tags, br);
+                        .to_decision(logs, precision_level, mgh, &reqinfo, &mut tags, br);
                 if let Some(mut action) = dec.maction.as_mut() {
                     action.block_mode &= secpol.content_filter_active;
                 }
