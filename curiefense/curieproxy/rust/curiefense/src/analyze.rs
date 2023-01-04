@@ -132,7 +132,7 @@ pub fn analyze_init<GH: Grasshopper>(logs: &mut Logs, mgh: Option<&GH>, p0: APha
     }
 
     //if /7060 then call gh phase02
-    if reqinfo.rinfo.qinfo.uri.starts_with("/7060ac19f50208cbb6b45328ef94140a612ee92387e015594234077b4d1e64f1/") {
+    if reqinfo.rinfo.qinfo.uri.starts_with("/7060ac19f50208cbb6b45328ef94140a612ee92387e015594234077b4d1e64f1") {
         if let Some(decision) = mgh.and_then(|gh| challenge_phase02(gh, logs, &reqinfo)) {
             return InitResult::Res(AnalyzeResult {
                 decision,

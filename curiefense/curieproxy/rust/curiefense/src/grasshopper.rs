@@ -209,7 +209,7 @@ pub fn challenge_phase01<GH: Grasshopper>(
 }
 
 pub fn challenge_phase02<GH: Grasshopper>(gh: &GH, logs: &mut Logs, reqinfo: &RequestInfo) -> Option<Decision> {
-    if !reqinfo.rinfo.qinfo.uri.starts_with("/7060ac19f50208cbb6b45328ef94140a612ee92387e015594234077b4d1e64f1/") {
+    if !reqinfo.rinfo.qinfo.uri.starts_with("/7060ac19f50208cbb6b45328ef94140a612ee92387e015594234077b4d1e64f1") {
         return None;
     }
 

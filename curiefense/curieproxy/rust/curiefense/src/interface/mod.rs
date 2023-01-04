@@ -416,7 +416,7 @@ pub enum SimpleActionT {
     Skip,
     Monitor,
     Custom { content: String },
-    Challenge,
+    Challenge { ch_level: GHMode},
 }
 
 impl SimpleActionT {
@@ -424,7 +424,7 @@ impl SimpleActionT {
         use SimpleActionT::*;
         match self {
             Custom { content: _ } => 8,
-            Challenge => 6,
+            Challenge { ch_level: _} => 6,
             Monitor => 1,
             Skip => 9,
         }
@@ -438,7 +438,7 @@ impl SimpleActionT {
         match self {
             SimpleActionT::Skip => BDecision::Skip,
             SimpleActionT::Monitor => BDecision::Monitor,
-            SimpleActionT::Challenge | SimpleActionT::Custom { content: _ } => BDecision::Blocking,
+            SimpleActionT::Challenge { ch_level: _} | SimpleActionT::Custom { content: _ } => BDecision::Blocking,
         }
     }
 }
@@ -534,7 +534,12 @@ impl SimpleAction {
             RawActionType::Custom => SimpleActionT::Custom {
                 content: rawaction.params.content.clone().unwrap_or_default(),
             },
-            RawActionType::Challenge => SimpleActionT::Challenge,
+            RawActionType::Challenge => SimpleActionT::Challenge {
+                ch_level: GHMode::Active
+            },
+            RawActionType::Ichallenge => SimpleActionT::Challenge {
+                ch_level: GHMode::Interactive
+            },
         };
         let status = rawaction.params.status.unwrap_or(503);
         let headers = rawaction.params.headers.as_ref().map(|hm| {
@@ -576,7 +581,7 @@ impl SimpleAction {
                 action.atype = ActionType::Block;
                 action.content = content.clone();
             }
-            SimpleActionT::Challenge => {
+            SimpleActionT::Challenge { ch_level }  => {
                 if !is_human {
                     return None;
                 }
@@ -604,9 +609,21 @@ impl SimpleAction {
                 reasons: reason,
             };
         }
+        //phase01 for challenge/ichallenge (active/interactive challenge)
+        let mut ch_mode:GHMode = GHMode::Active;
+        match &self.atype {
+            SimpleActionT::Challenge{ ch_level } => {
+                ch_mode = *ch_level;
+            }
+            _ => println!("atype not relevant to challenge")
+        }
+        //for active/interactive challenge
         let action = match self.to_action(rinfo, tags, precision_level.is_human()) {
             None => match mgh {
-                Some(gh) => return challenge_phase01(gh, logs, rinfo, reason, GHMode::Interactive),
+                //if None-must be one of the challenge actions
+                Some(gh) => {
+                    return challenge_phase01(gh, logs, rinfo, reason, ch_mode)
+                },
                 _ => Action::default(),
             },
             Some(a) => a,
