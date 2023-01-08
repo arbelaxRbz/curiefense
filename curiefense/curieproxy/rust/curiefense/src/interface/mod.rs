@@ -615,7 +615,7 @@ impl SimpleAction {
             SimpleActionT::Challenge{ ch_level } => {
                 ch_mode = *ch_level;
             }
-            _ => println!("atype not relevant to challenge")
+            _ => ()
         }
         //for active/interactive challenge
         let action = match self.to_action(rinfo, tags, precision_level.is_human()) {

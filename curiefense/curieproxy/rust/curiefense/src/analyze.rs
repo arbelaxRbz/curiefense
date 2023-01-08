@@ -6,7 +6,7 @@ use crate::config::flow::FlowMap;
 use crate::config::HSDB;
 use crate::contentfilter::{content_filter_check, masking};
 use crate::flow::{flow_build_query, flow_info, flow_process, flow_resolve_query, FlowCheck, FlowResult};
-use crate::grasshopper::{challenge_phase01, challenge_phase02, Grasshopper, PrecisionLevel, GHMode};
+use crate::grasshopper::{challenge_phase01, challenge_phase02, check_app_sig, Grasshopper, PrecisionLevel, GHMode};
 use crate::interface::stats::{BStageMapped, StatsCollect};
 use crate::interface::{
     merge_decisions, AclStage, AnalyzeResult, BDecision, BlockReason, Decision, Location, SimpleDecision, Tags,
@@ -144,7 +144,19 @@ pub fn analyze_init<GH: Grasshopper>(logs: &mut Logs, mgh: Option<&GH>, p0: APha
         logs.debug("challenge phase2 ignored");
     }
 
-    //todo if /74d8 then call gh phase01 with mode sdk (TBD)
+    if reqinfo.rinfo.qinfo.uri.starts_with("/74d8-ffc3-0f63-4b3c-c5c9-5699-6d5b-3a1") {
+        if let Some(decision) = mgh.and_then(|gh| check_app_sig(gh, logs, &reqinfo)) {
+            return InitResult::Res(AnalyzeResult {
+                decision,
+                tags,
+                rinfo: masking(reqinfo),
+                stats: stats.mapped_stage_build(),
+            });
+        }
+        logs.debug("check_app_sig ignored");
+    }
+
+    //todo handle /8d47?
 
     let decision = if let SimpleDecision::Action(action, reason) = globalfilter_dec {
         logs.debug(|| format!("Global filter decision {:?}", reason));

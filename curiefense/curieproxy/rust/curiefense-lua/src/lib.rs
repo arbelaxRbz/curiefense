@@ -254,6 +254,10 @@ impl Grasshopper for DummyGrasshopper {
     fn init_challenge(&self, _input: GHQuery, _mode: GHMode) -> Result<GHResponse, String> {
         Ok(GHResponse::invalid())
     }
+
+    fn should_provide_app_sig(&self, _headers: HashMap<&str, &str>) -> Result<GHResponse, String> {
+        Ok(GHResponse::invalid())
+    }
 }
 
 /// Lua TEST interface to the inspection function

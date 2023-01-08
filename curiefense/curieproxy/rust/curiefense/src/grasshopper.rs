@@ -45,6 +45,7 @@ pub struct GHResponse {
     pub precision_level: PrecisionLevel,
     pub str_response: String,
     pub headers: HashMap<String, String>,
+    status_code: u32,
 }
 
 impl GHResponse {
@@ -53,6 +54,7 @@ impl GHResponse {
             precision_level: PrecisionLevel::Invalid,
             str_response: "invalid".to_string(),
             headers: HashMap::new(),
+            status_code: 200,
         }
     }
 }
@@ -61,6 +63,7 @@ pub trait Grasshopper {
     fn is_human(&self, input: GHQuery) -> Result<PrecisionLevel, String>;
     fn init_challenge(&self, input: GHQuery, mode: GHMode) -> Result<GHResponse, String>;
     fn verify_challenge(&self, headers: HashMap<&str, &str>) -> Result<String, String>;
+    fn should_provide_app_sig(&self, headers: HashMap<&str, &str>) -> Result<GHResponse, String>;
 }
 
 mod imported {
@@ -74,6 +77,7 @@ mod imported {
         ) -> *mut c_char;
         pub fn init_challenge(c_input_data: *const c_char, mode: GHMode, success: *mut bool) -> *mut c_char;
         pub fn verify_challenge(c_headers: *const c_char, success: *mut bool) -> *mut c_char;
+        pub fn should_provide_app_sig(c_headers: *const c_char, success: *mut bool) -> *mut c_char;
         pub fn free_string(s: *mut c_char);
     }
 }
@@ -82,6 +86,10 @@ pub struct DummyGrasshopper {}
 
 // use this when grasshopper can't be used
 impl Grasshopper for DummyGrasshopper {
+    fn should_provide_app_sig(&self, _headers: HashMap<&str, &str>) -> Result<GHResponse, String> {
+        Err("not implemented".into())
+    }
+
     fn verify_challenge(&self, _headers: HashMap<&str, &str>) -> Result<String, String> {
         Err("not implemented".into())
     }
@@ -155,6 +163,26 @@ impl Grasshopper for DynGrasshopper {
             if success {
                 Ok(o)
             } else {
+                Err(o)
+            }
+        }
+    }
+
+    fn should_provide_app_sig(&self, headers: HashMap<&str, &str>) -> Result<GHResponse, String> {
+        unsafe {
+            let encoded_headers = serde_json::to_vec(&headers).map_err(|rr| rr.to_string())?;
+            let c_headers =
+                CString::new(encoded_headers).map_err(|_| "null character in JSON encoded string?!?".to_string())?;
+            let mut success = false;
+            let r = imported::should_provide_app_sig(c_headers.as_ptr(), &mut success);
+            let cstr = CStr::from_ptr(r);
+            if success {
+                let reply: GHResponse = serde_json::from_slice(cstr.to_bytes()).unwrap();
+                imported::free_string(r);
+                Ok(reply)
+            } else {
+                let o = cstr.to_string_lossy().to_string();
+                imported::free_string(r);
                 Err(o)
             }
         }
@@ -238,5 +266,31 @@ pub fn challenge_phase02<GH: Grasshopper>(gh: &GH, logs: &mut Logs, reqinfo: &Re
             extra_tags: Some(["challenge_phase02"].iter().map(|s| s.to_string()).collect()),
         },
         vec![BlockReason::phase02()],
+    ))
+}
+
+pub fn check_app_sig<GH: Grasshopper>(gh: &GH, logs: &mut Logs, reqinfo: &RequestInfo) -> Option<Decision> {
+    if !reqinfo.rinfo.qinfo.uri.starts_with("/74d8-ffc3-0f63-4b3c-c5c9-5699-6d5b-3a1") {
+        return None;
+    }
+
+    let gh_response = match gh.should_provide_app_sig(reqinfo.headers.as_map()) {
+        Ok(r) => r,
+        Err(rr) => {
+            logs.error(|| format!("check_app_sig error {}", rr));
+            return None;
+        },
+    };
+    //action:Monitor+block_mode:false+no reasons -> to see it not blocked in viewlog?
+    Some(Decision::action(
+        Action {
+            atype: ActionType::Monitor,
+            block_mode: false,
+            headers: Some(gh_response.headers),
+            status: gh_response.status_code,
+            content: "{}".to_string(),
+            extra_tags: Some(["check_app_sig"].iter().map(|s| s.to_string()).collect()),
+        },
+        vec![],
     ))
 }
