@@ -15,12 +15,13 @@ pub enum PrecisionLevel {
     Passive,
     Interactive,
     MobileSdk,
+    Emulator,
     Invalid,
 }
 
 impl PrecisionLevel {
     pub fn is_human(&self) -> bool {
-        *self != PrecisionLevel::Invalid
+        (*self != PrecisionLevel::Invalid) && (*self != PrecisionLevel::Emulator)
     }
 }
 

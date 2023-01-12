@@ -199,6 +199,10 @@ pub fn tag_request(
         Invalid => {
             tags.insert("bot", Location::Request);
         }
+        Emulator => {
+            tags.insert("mobile-sdk:emulator", Location::Request);
+            tags.insert("bot", Location::Request);
+        }
     }
     tags.insert_qualified("headers", &rinfo.headers.len().to_string(), Location::Headers);
     tags.insert_qualified("cookies", &rinfo.cookies.len().to_string(), Location::Cookies);
