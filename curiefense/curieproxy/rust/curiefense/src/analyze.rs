@@ -74,6 +74,7 @@ pub fn analyze_init<GH: Grasshopper>(logs: &mut Logs, mgh: Option<&GH>, p0: APha
     let securitypolicy = &reqinfo.rinfo.secpolicy;
     let precision_level = p0.precision_level;
     let globalfilter_dec = p0.globalfilter_dec;
+    println!("~~~~~~~ in analyze_init ~~~~~~~");
 
     tags.insert_qualified("securitypolicy", &securitypolicy.policy.name, Location::Request);
     tags.insert_qualified("securitypolicy-entry", &securitypolicy.entry.name, Location::Request);
@@ -106,6 +107,7 @@ pub fn analyze_init<GH: Grasshopper>(logs: &mut Logs, mgh: Option<&GH>, p0: APha
     }
 
     if !securitypolicy.content_filter_profile.content_type.is_empty() {
+        println!("ANALYZE in analyze_init check securitypolicy.content_filter_profile.content_type");
         // note that having no body is perfectly OK
         if let BodyDecodingResult::DecodingFailed(rr) = &reqinfo.rinfo.qinfo.body_decoding {
             let reason = BlockReason::body_malformed(rr);
@@ -131,6 +133,8 @@ pub fn analyze_init<GH: Grasshopper>(logs: &mut Logs, mgh: Option<&GH>, p0: APha
         }
     }
 
+    println!("ANALYZE in analyze_init check uri, reqinfo: {:?}", reqinfo);
+    println!("ANALYZE in analyze_init check uri, reqinfo.rinfo.qinfo.uri: {:?}", reqinfo.rinfo.qinfo.uri);
     //if /7060 then call gh phase02
     if reqinfo.rinfo.qinfo.uri.starts_with("/7060ac19f50208cbb6b45328ef94140a612ee92387e015594234077b4d1e64f1") {
         if let Some(decision) = mgh.and_then(|gh| challenge_phase02(gh, logs, &reqinfo)) {
@@ -145,6 +149,7 @@ pub fn analyze_init<GH: Grasshopper>(logs: &mut Logs, mgh: Option<&GH>, p0: APha
     }
 
     if reqinfo.rinfo.qinfo.uri.starts_with("/74d8-ffc3-0f63-4b3c-c5c9-5699-6d5b-3a1") {
+        println!("uri starts with /74d8");
         if let Some(decision) = mgh.and_then(|gh| check_app_sig(gh, logs, &reqinfo)) {
             return InitResult::Res(AnalyzeResult {
                 decision,
@@ -170,9 +175,14 @@ pub fn analyze_init<GH: Grasshopper>(logs: &mut Logs, mgh: Option<&GH>, p0: APha
         logs.debug("handle_bio_report ignored");
     }
 
+
+    println!("ANALYZE in analyze_init do globalfilter_dec: {:?}", globalfilter_dec);
     let decision = if let SimpleDecision::Action(action, reason) = globalfilter_dec {
         logs.debug(|| format!("Global filter decision {:?}", reason));
+        println!("ANALYZE in analyze_init Global filter action {:?}", action);
+        println!("ANALYZE in analyze_init Global filter reason {:?}", reason);
         let decision = action.to_decision(logs, precision_level, mgh, &reqinfo, &mut tags, reason);
+        println!("ANALYZE in analyze_init Global filter decision {:?}", decision);
         if decision.is_final() {
             return InitResult::Res(AnalyzeResult {
                 decision,
@@ -188,6 +198,7 @@ pub fn analyze_init<GH: Grasshopper>(logs: &mut Logs, mgh: Option<&GH>, p0: APha
         Decision::pass(Vec::new())
     };
 
+    println!("ANALYZE in analyze_init do limit_info");
     let limit_checks = limit_info(logs, &reqinfo, &securitypolicy.limits, &tags);
     let flow_checks = flow_info(logs, &p0.flows, &reqinfo, &tags);
     let info = AnalysisInfo {
@@ -265,6 +276,7 @@ pub fn analyze_finish<GH: Grasshopper>(
     let info = p2.info;
     let mut tags = info.tags;
     let mut cumulated_decision = info.p0_decision;
+    println!("~~~~~~~ in analyze_finish ~~~~~~~");
 
     let precision_level = info.precision_level;
     let reqinfo = info.reqinfo;
@@ -274,9 +286,11 @@ pub fn analyze_finish<GH: Grasshopper>(
     let (limit_check, stats) = limit_process(stats, 0, &p2.limits, &mut tags);
 
     if let SimpleDecision::Action(action, curbrs) = limit_check {
+        println!("ANALYZE in analyze_finish in limit_check call to_decision");
         let limit_decision = action.to_decision(logs, precision_level, mgh, &reqinfo, &mut tags, curbrs);
         cumulated_decision = merge_decisions(cumulated_decision, limit_decision);
         if cumulated_decision.is_final() {
+            println!("ANALYZE in analyze_finish in limit_check cumulated_decision.is_final(). cumulated_decision: {:?}", cumulated_decision);
             return AnalyzeResult {
                 decision: cumulated_decision,
                 tags,
@@ -287,8 +301,10 @@ pub fn analyze_finish<GH: Grasshopper>(
     }
     logs.debug("limit checks done");
 
+    println!("ANALYZE in analyze_finish check_acl");
     let acl_result = check_acl(&tags, &secpol.acl_profile);
     logs.debug(|| format!("ACL result: {}", acl_result));
+    println!("ANALYZE in analyze_finish ACL result: {}", acl_result);
 
     let acl_decision = acl_result.decision(precision_level.is_human());
     let stats = stats.acl(if acl_decision.is_some() { 1 } else { 0 });
@@ -334,10 +350,13 @@ pub fn analyze_finish<GH: Grasshopper>(
 
         // Send challenge, even if the acl is inactive in sec_pol.
         if decision.challenge {
+            println!("ANALYZE in analyze_finish in decision.challenge");
             let decision = if let Some(gh) = mgh {
+                println!("ANALYZE in analyze_finish in decision.challenge call challenge_phase01");
                 challenge_phase01(gh, logs,  &reqinfo, Vec::new(), GHMode::Active)
             } else {
                 logs.debug("ACL challenge detected: can't challenge");
+                println!("ANALYZE in analyze_finish in decision.challenge ACL challenge detected: can't challenge, acl_block");
                 acl_block(&mut tags, logs)
             };
 

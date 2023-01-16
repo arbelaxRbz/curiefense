@@ -583,11 +583,13 @@ impl SimpleAction {
             }
             SimpleActionT::Challenge { ch_level }  => {
                 if !is_human {
+                    println!("!!!! in to_action, is Challenge({:?}) return action None", ch_level);
                     return None;
                 }
                 action.atype = ActionType::Monitor;
             }
         }
+        println!("!!!! in to_action return action: {:?}", action);
         Some(action)
     }
 
@@ -611,13 +613,16 @@ impl SimpleAction {
         }
         //phase01 for challenge/ichallenge (active/interactive challenge)
         let mut ch_mode:GHMode = GHMode::Active;
+        println!("!!! atype: {:?}", self.atype);
         match &self.atype {
             SimpleActionT::Challenge{ ch_level } => {
                 ch_mode = *ch_level;
+                println!("!!! to_decision CHALLENGE! ch_mode: {:?}", ch_mode);
             }
             _ => ()
         }
         //for active/interactive challenge
+        println!("!!! to_decision call to_action with reason: {:?}", reason);
         let action = match self.to_action(rinfo, tags, precision_level.is_human()) {
             None => match mgh {
                 //if None-must be one of the challenge actions

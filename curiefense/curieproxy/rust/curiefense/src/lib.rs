@@ -34,8 +34,10 @@ use tagging::tag_request;
 use utils::{map_request, RawRequest, RequestInfo};
 
 use crate::config::hostmap::SecurityPolicy;
-
+//todo should receive sdk configuration from config/raw.rs struct, and pass it to gg
 fn challenge_verified<GH: Grasshopper>(gh: &GH, reqinfo: &RequestInfo, logs: &mut Logs) -> PrecisionLevel {
+    println!("lib.rs  in challenge_verified, call gh.is_human:");
+    println!("lib.rs  in challenge_verified, reqinfo.cookies: {:?}", reqinfo.cookies.as_map());
     match gh.is_human(GHQuery {
         headers: reqinfo.headers.as_map(),
         cookies: reqinfo.cookies.as_map(),
@@ -157,13 +159,16 @@ pub fn inspect_generic_request_map_init<GH: Grasshopper>(
 
                     let nflows = cfg.flows.clone();
 
+                    println!("lib.rs inspect_generic_request_map_init reqinfo: {:?}", reqinfo);
                     // without grasshopper, default to being not human
                     let precision_level = if let Some(gh) = mgh {
+                        println!("lib.rs inspect_generic_request_map_init call challenge_verified (to get precision_level for tags)");
                         challenge_verified(gh, &reqinfo, slogs)
                     } else {
                         PrecisionLevel::Invalid
                     };
 
+                    println!("lib.rs inspect_generic_request_map_init precision_level: {:?}", precision_level);
                     let ntags = tag_request(stats, precision_level, &cfg.globalfilters, &reqinfo, &cfg.virtual_tags);
                     RequestMappingResult::Res((ntags, nflows, reqinfo, precision_level))
                 }

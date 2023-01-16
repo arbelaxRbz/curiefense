@@ -126,6 +126,8 @@ pub struct DynGrasshopper {}
 impl Grasshopper for DynGrasshopper {
     fn is_human(&self, input: GHQuery) -> Result<PrecisionLevel, String> {
         unsafe {
+            println!("GRASSHOPPER in is_human");
+            println!("GRASSHOPPER is_human input: {:?}", input);
             let encoded_input = serde_json::to_vec(&input).map_err(|rr| rr.to_string())?;
             let cinput =
                 CString::new(encoded_input).map_err(|_| "null character in JSON encoded string?!?".to_string())?;
@@ -134,6 +136,7 @@ impl Grasshopper for DynGrasshopper {
             let r = imported::is_human(cinput.as_ptr(), &mut success, &mut precision_level);
             if success {
                 if r.is_null() {
+                    println!("GRASSHOPPER is_human success precision_level: {:?}", precision_level);
                     Ok(precision_level)
                 } else {
                     Err("Grasshopper unexpectedly returned a non null pointer on success!".to_string())
@@ -142,6 +145,7 @@ impl Grasshopper for DynGrasshopper {
                 let cstr = CStr::from_ptr(r);
                 let o = cstr.to_string_lossy().to_string();
                 imported::free_string(r);
+                println!("GRASSHOPPER is_human !success err: {}", o);
                 Err(o)
             }
         }
@@ -172,6 +176,7 @@ impl Grasshopper for DynGrasshopper {
 
     fn init_challenge(&self, input: GHQuery, mode: GHMode) -> Result<GHResponse, String> {
         unsafe {
+            println!("GRASSHOPPER init_challenge");
             let encoded_input = serde_json::to_vec(&input).map_err(|rr| rr.to_string())?;
             let cinput =
                 CString::new(encoded_input).map_err(|_| "null character in JSON encoded string?!?".to_string())?;
@@ -181,6 +186,7 @@ impl Grasshopper for DynGrasshopper {
             if success {
                 let reply: GHResponse = serde_json::from_slice(cstr.to_bytes()).unwrap();
                 imported::free_string(r);
+                println!("GRASSHOPPER init_challenge success reply: {:?}", reply);
                 Ok(reply)
             } else {
                 let o = cstr.to_string_lossy().to_string();
@@ -192,6 +198,7 @@ impl Grasshopper for DynGrasshopper {
 
     fn verify_challenge(&self, headers: HashMap<&str, &str>) -> Result<String, String> {
         unsafe {
+            println!("GRASSHOPPER verify_challenge, headers: {:?}", headers);
             let encoded_headers = serde_json::to_vec(&headers).map_err(|rr| rr.to_string())?;
             let c_headers =
                 CString::new(encoded_headers).map_err(|_| "null character in JSON encoded string?!?".to_string())?;
@@ -201,6 +208,7 @@ impl Grasshopper for DynGrasshopper {
             let o = cstr.to_string_lossy().to_string();
             imported::free_string(r);
             if success {
+                println!("GRASSHOPPER verify_challenge o: {}", o);
                 Ok(o)
             } else {
                 Err(o)
@@ -210,6 +218,7 @@ impl Grasshopper for DynGrasshopper {
 
     fn should_provide_app_sig(&self, headers: HashMap<&str, &str>) -> Result<GHResponse, String> {
         unsafe {
+            println!("GRASSHOPPER should_provide_app_sig, headers: {:?}", headers);
             let encoded_headers = serde_json::to_vec(&headers).map_err(|rr| rr.to_string())?;
             let c_headers =
                 CString::new(encoded_headers).map_err(|_| "null character in JSON encoded string?!?".to_string())?;
@@ -219,6 +228,7 @@ impl Grasshopper for DynGrasshopper {
             if success {
                 let reply: GHResponse = serde_json::from_slice(cstr.to_bytes()).unwrap();
                 imported::free_string(r);
+                println!("GRASSHOPPER should_provide_app_sig success reply: {:?}", reply);
                 Ok(reply)
             } else {
                 let o = cstr.to_string_lossy().to_string();
@@ -250,12 +260,15 @@ pub fn challenge_phase01<GH: Grasshopper>(
     reasons: Vec<BlockReason>,
     mode: GHMode,
 ) -> Decision {
+    println!("GRASSHOPPER challenge_phase01");
     let query = GHQuery {
         headers: rinfo.headers.as_map(),
         cookies: rinfo.cookies.as_map(),
         ip: &rinfo.rinfo.geoip.ipstr,
         protocol: &rinfo.rinfo.meta.protocol.as_deref().unwrap_or("https"),
     };
+    println!("GRASSHOPPER challenge_phase01 query: {:?}", query);
+    println!("GRASSHOPPER challenge_phase01 mode: {:?}, call init_challenge", mode);
     let gh_response = match gh.init_challenge(query, mode) {
         Ok(r) => r,
         Err(rr) => {
@@ -268,11 +281,11 @@ pub fn challenge_phase01<GH: Grasshopper>(
             atype: ActionType::Block,
             block_mode: true,
             headers: Some(gh_response.headers),
-            status: 247,
+            status: 247,//gh_response.status_code?
             content: gh_response.str_response,
             extra_tags: Some(["challenge_phase01"].iter().map(|s| s.to_string()).collect()),
         },
-        reasons,
+        reasons,//todo need?
     )
 }
 
@@ -280,6 +293,7 @@ pub fn challenge_phase02<GH: Grasshopper>(gh: &GH, logs: &mut Logs, reqinfo: &Re
     if !reqinfo.rinfo.qinfo.uri.starts_with("/7060ac19f50208cbb6b45328ef94140a612ee92387e015594234077b4d1e64f1") {
         return None;
     }
+    println!("GRASSHOPPER challenge_phase02");
 
     let verified = match gh.verify_challenge(reqinfo.headers.as_map()) {
         Ok(r) => r,
@@ -288,12 +302,14 @@ pub fn challenge_phase02<GH: Grasshopper>(gh: &GH, logs: &mut Logs, reqinfo: &Re
             return None;
         },
     };
+    println!("GRASSHOPPER challenge_phase02 verified: {:?}", verified);
 
     let mut nheaders = HashMap::<String, String>::new();
     let mut cookie = "rbzid=".to_string();
     cookie += &verified.replace('=', "-");
     cookie += "; Path=/; HttpOnly";
 
+    println!("GRASSHOPPER challenge_phase02 cookie: {:?}", cookie);
     nheaders.insert("Set-Cookie".to_string(), cookie);
 
     Some(Decision::action(
@@ -305,7 +321,7 @@ pub fn challenge_phase02<GH: Grasshopper>(gh: &GH, logs: &mut Logs, reqinfo: &Re
             content: "{}".to_string(),
             extra_tags: Some(["challenge_phase02"].iter().map(|s| s.to_string()).collect()),
         },
-        vec![BlockReason::phase02()],
+        vec![],//vec![BlockReason::phase02()],//todo only if fails?
     ))
 }
 
@@ -313,6 +329,7 @@ pub fn check_app_sig<GH: Grasshopper>(gh: &GH, logs: &mut Logs, reqinfo: &Reques
     if !reqinfo.rinfo.qinfo.uri.starts_with("/74d8-ffc3-0f63-4b3c-c5c9-5699-6d5b-3a1") {
         return None;
     }
+    println!("GRASSHOPPER check_app_sig");
 
     let gh_response = match gh.should_provide_app_sig(reqinfo.headers.as_map()) {
         Ok(r) => r,
@@ -321,15 +338,56 @@ pub fn check_app_sig<GH: Grasshopper>(gh: &GH, logs: &mut Logs, reqinfo: &Reques
             return None;
         },
     };
+    println!("GRASSHOPPER check_app_sig result: {:?}", gh_response);
     //action:Monitor+block_mode:false+no reasons -> to see it not blocked in viewlog?
     Some(Decision::action(
         Action {
-            atype: ActionType::Monitor,
-            block_mode: false,
+            atype: ActionType::Block,
+            block_mode: true,
             headers: Some(gh_response.headers),
             status: gh_response.status_code,
             content: "{}".to_string(),
             extra_tags: Some(["check_app_sig"].iter().map(|s| s.to_string()).collect()),
+        },
+        vec![],
+    ))
+}
+
+pub fn handle_bio_reports<GH: Grasshopper>(
+    gh: &GH,
+    logs: &mut Logs,
+    reqinfo: &RequestInfo,
+    precision_level: PrecisionLevel
+) -> Option<Decision> {
+    if !reqinfo.rinfo.qinfo.uri.starts_with("/8d47-ffc3-0f63-4b3c-c5c9-5699-6d5b-3a1") {
+        return None;
+    }
+    println!("GRASSHOPPER handle_bio_reports");
+    let query = GHQuery {//todo need args...
+        headers: reqinfo.headers.as_map(),
+        cookies: reqinfo.cookies.as_map(),
+        //todo can remove these 2
+        ip: &reqinfo.rinfo.geoip.ipstr,
+        protocol: &reqinfo.rinfo.meta.protocol.as_deref().unwrap_or("https"),
+    };
+    println!("GRASSHOPPER handle_bio_reports created query: {:?}", query);
+
+    let gh_response = match gh.handle_bio_report(query, precision_level) {
+        Ok(r) => r,
+        Err(rr) => {
+            logs.error(|| format!("handle_bio_reports error {}", rr));
+            return None;
+        },
+    };
+    println!("GRASSHOPPER handle_bio_reports result: {:?}", gh_response);
+:    Some(Decision::action(
+        Action {
+            atype: ActionType::Block,
+            block_mode: true,
+            headers: Some(gh_response.headers),
+            status: gh_response.status_code,//todo?
+            content: gh_response.str_response,
+            extra_tags: Some(["handle_bio_reports"].iter().map(|s| s.to_string()).collect()),
         },
         vec![],
     ))

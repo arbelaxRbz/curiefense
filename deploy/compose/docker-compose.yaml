@@ -45,6 +45,16 @@ services:
       - curieproxy_config:/cf-config
       - ./filebeat/ilm.json:/usr/share/filebeat/ilm.json
       - ./filebeat/template.json:/usr/share/filebeat/template.json
+      - type: bind
+        source: /Users/arbel/Documents/WorkspaceCurie/curiefense/curiefense/curieproxy/rust/static/libgrasshopper.so
+        target: /usr/lib/libgrasshopper.so
+      - type: bind
+        source: /Users/arbel/Documents/WorkspaceCurie/curiefense/curiefense/curieproxy/rust/ctarget/target/debug/libcuriefense_lua.so
+        target: /usr/local/lib/lua/5.1/curiefense.so
+      - type: bind
+        source: /Users/arbel/Documents/WorkspaceCurie/curiefense/curiefense/curieproxy/lua/
+        target: /lua
+
     environment:
       - XFF_TRUSTED_HOPS=${XFF_TRUSTED_HOPS:-1}
       - TARGET_ADDRESS_A=${TARGET_ADDRESS_A:-echo}

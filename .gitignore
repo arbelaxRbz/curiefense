@@ -36,3 +36,4 @@ internal-notes/
 .mypy_cache
 .vscode
 .venv
+.idea
