@@ -41,6 +41,13 @@ pub struct GHQuery<'t> {
     pub protocol: &'t str,
 }
 
+#[derive(Serialize, Debug)]
+pub struct GHBioQuery<'t> {
+    pub headers: HashMap<&'t str, &'t str>,
+    pub cookies: HashMap<&'t str, &'t str>,
+    //todo add args and use this struct
+}
+
 #[derive(Deserialize, Debug, Clone)]
 pub struct GHResponse {
     pub precision_level: PrecisionLevel,
@@ -65,6 +72,7 @@ pub trait Grasshopper {
     fn init_challenge(&self, input: GHQuery, mode: GHMode) -> Result<GHResponse, String>;
     fn verify_challenge(&self, headers: HashMap<&str, &str>) -> Result<String, String>;
     fn should_provide_app_sig(&self, headers: HashMap<&str, &str>) -> Result<GHResponse, String>;
+    fn handle_bio_report(&self, input: GHQuery, precision_level: PrecisionLevel) -> Result<GHResponse, String>;
 }
 
 mod imported {
@@ -79,6 +87,10 @@ mod imported {
         pub fn init_challenge(c_input_data: *const c_char, mode: GHMode, success: *mut bool) -> *mut c_char;
         pub fn verify_challenge(c_headers: *const c_char, success: *mut bool) -> *mut c_char;
         pub fn should_provide_app_sig(c_headers: *const c_char, success: *mut bool) -> *mut c_char;
+        pub fn handle_bio_report(
+            c_input_data: *const c_char,
+            precision_level: PrecisionLevel,
+            success: *mut bool) -> *mut c_char;
         pub fn free_string(s: *mut c_char);
     }
 }
@@ -100,6 +112,10 @@ impl Grasshopper for DummyGrasshopper {
     }
 
     fn is_human(&self, _input: GHQuery) -> Result<PrecisionLevel, String> {
+        Err("not implemented".into())
+    }
+
+    fn handle_bio_report(&self, _input: GHQuery, _precision_leve: PrecisionLevel) -> Result<GHResponse, String> {
         Err("not implemented".into())
     }
 }
@@ -124,6 +140,29 @@ impl Grasshopper for DynGrasshopper {
                 }
             } else {
                 let cstr = CStr::from_ptr(r);
+                let o = cstr.to_string_lossy().to_string();
+                imported::free_string(r);
+                Err(o)
+            }
+        }
+    }
+
+    fn handle_bio_report(&self, input: GHQuery, precision_level: PrecisionLevel) -> Result<GHResponse, String> {
+        unsafe {
+            println!("GRASSHOPPER in handle_bio_report");
+            println!("GRASSHOPPER handle_bio_report input: {:?}", input);
+            let encoded_input = serde_json::to_vec(&input).map_err(|rr| rr.to_string())?;
+            let cinput =
+                CString::new(encoded_input).map_err(|_| "null character in JSON encoded string?!?".to_string())?;
+            let mut success = false;
+            let r = imported::handle_bio_report(cinput.as_ptr(), precision_level, &mut success);
+            let cstr = CStr::from_ptr(r);
+            if success {
+                let reply: GHResponse = serde_json::from_slice(cstr.to_bytes()).unwrap();
+                imported::free_string(r);
+                println!("GRASSHOPPER handle_bio_report success reply: {:?}", reply);
+                Ok(reply)
+            } else {
                 let o = cstr.to_string_lossy().to_string();
                 imported::free_string(r);
                 Err(o)

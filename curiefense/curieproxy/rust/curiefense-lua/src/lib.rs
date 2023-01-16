@@ -258,6 +258,10 @@ impl Grasshopper for DummyGrasshopper {
     fn should_provide_app_sig(&self, _headers: HashMap<&str, &str>) -> Result<GHResponse, String> {
         Ok(GHResponse::invalid())
     }
+
+    fn handle_bio_report(&self, _input: GHQuery, _precision_leve: PrecisionLevel) -> Result<GHResponse, String> {
+        Err("not implemented".into())
+    }
 }
 
 /// Lua TEST interface to the inspection function

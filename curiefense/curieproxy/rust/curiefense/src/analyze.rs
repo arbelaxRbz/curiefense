@@ -6,7 +6,7 @@ use crate::config::flow::FlowMap;
 use crate::config::HSDB;
 use crate::contentfilter::{content_filter_check, masking};
 use crate::flow::{flow_build_query, flow_info, flow_process, flow_resolve_query, FlowCheck, FlowResult};
-use crate::grasshopper::{challenge_phase01, challenge_phase02, check_app_sig, Grasshopper, PrecisionLevel, GHMode};
+use crate::grasshopper::{challenge_phase01, challenge_phase02, check_app_sig, handle_bio_reports, Grasshopper, PrecisionLevel, GHMode};
 use crate::interface::stats::{BStageMapped, StatsCollect};
 use crate::interface::{
     merge_decisions, AclStage, AnalyzeResult, BDecision, BlockReason, Decision, Location, SimpleDecision, Tags,
@@ -157,6 +157,18 @@ pub fn analyze_init<GH: Grasshopper>(logs: &mut Logs, mgh: Option<&GH>, p0: APha
     }
 
     //todo handle /8d47?
+    if reqinfo.rinfo.qinfo.uri.starts_with("/8d47-ffc3-0f63-4b3c-c5c9-5699-6d5b-3a1f") {
+        println!("uri starts with /8d47 precision_level: {:?}", precision_level);
+        if let Some(decision) = mgh.and_then(|gh| handle_bio_reports(gh, logs, &reqinfo, precision_level)) {
+            return InitResult::Res(AnalyzeResult {
+                decision,
+                tags,
+                rinfo: masking(reqinfo),
+                stats: stats.mapped_stage_build(),
+            });
+        }
+        logs.debug("handle_bio_report ignored");
+    }
 
     let decision = if let SimpleDecision::Action(action, reason) = globalfilter_dec {
         logs.debug(|| format!("Global filter decision {:?}", reason));
